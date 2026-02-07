@@ -23,5 +23,11 @@ export const productCategory = defineType({
       title: '描述',
       type: 'text',
     }),
+    defineField({
+      name: 'image',
+      title: '分类图片',
+      type: 'image',
+      options: { hotspot: true },
+    }),
   ],
 })

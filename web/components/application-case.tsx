@@ -3,13 +3,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface ApplicationCaseProps {
-  imagePath?: string
-}
-
-export function ApplicationCase({ 
-  imagePath = "/images/products/vibratory-bowl-feeder/application-01.jpg" 
-}: ApplicationCaseProps) {
+export function ApplicationCase() {
   return (
     <section className="py-24 lg:py-32 bg-[#1F1F1F] text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -69,7 +63,7 @@ export function ApplicationCase({
           <div className="relative">
             <div className="aspect-[4/3] relative overflow-hidden border border-white/10">
               <Image
-                src={imagePath || "/placeholder.svg"}
+                src="/images/case-automotive.png"
                 alt="Automotive fastener feeding system application"
                 fill
                 className="object-cover"

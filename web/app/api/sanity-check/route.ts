@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sanityClient } from "@/lib/sanity.client";
 import { siteSettingsQuery } from "@/lib/sanity.queries";
+import { groq } from "next-sanity";
 
 /**
  * GET /api/sanity-check
@@ -8,6 +9,7 @@ import { siteSettingsQuery } from "@/lib/sanity.queries";
  * - 环境变量 projectId / dataset 是否与 Studio 一致
  * - 能否成功拉取 siteSettings
  * - 返回数据结构是否与 schema 一致
+ * - product / productCategory 数量
  */
 export async function GET() {
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
@@ -30,7 +32,11 @@ export async function GET() {
   }
 
   try {
-    const siteSettings = await sanityClient.fetch(siteSettingsQuery);
+    const [siteSettings, productCount, categoryCount] = await Promise.all([
+      sanityClient.fetch(siteSettingsQuery),
+      sanityClient.fetch<number>(groq`count(*[_type == "product"])`),
+      sanityClient.fetch<number>(groq`count(*[_type == "productCategory"])`),
+    ]);
 
     // 与 schema 对齐的字段检查（siteSettings 文档类型）
     const expectedFields = [
@@ -65,6 +71,8 @@ export async function GET() {
         dataset,
         apiVersion,
       },
+      productCount: productCount ?? 0,
+      categoryCount: categoryCount ?? 0,
       sanityStudioMatch: {
         projectId: projectId === "rbkc9qwm" ? "与当前 Studio 一致" : "请核对 Studio sanity.config.ts",
         dataset: dataset === "production" ? "与当前 Studio 一致" : "请核对 Studio",
@@ -92,6 +100,13 @@ export async function GET() {
           },
     });
   } catch (e) {
+    console.error(e);
+    console.error("代理环境变量:", {
+      HTTP_PROXY: !!process.env.HTTP_PROXY,
+      HTTPS_PROXY: !!process.env.HTTPS_PROXY,
+      ALL_PROXY: !!process.env.ALL_PROXY,
+      NO_PROXY: !!process.env.NO_PROXY,
+    });
     const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
       {

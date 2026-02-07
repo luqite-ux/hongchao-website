@@ -1,11 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Factory, Award, Globe, Users, Target, Eye, CheckCircle } from "lucide-react"
+import { ArrowRight, Factory, Award, Globe, Target, Eye, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchSiteSettings } from "@/lib/site-settings"
-import { urlForImage } from "@/lib/sanity.image"
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchSiteSettings()
@@ -52,7 +51,6 @@ const certifications = [
 export default async function AboutPage() {
   const settings = await fetchSiteSettings()
   const companyName = settings?.companyName || DEFAULT_COMPANY
-  const logoSrc = settings?.logo ? urlForImage(settings.logo).width(300).height(300).url() : "/logo.png"
 
   return (
     <div className="flex flex-col">
@@ -88,13 +86,13 @@ export default async function AboutPage() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-lg overflow-hidden bg-background/10 flex items-center justify-center">
+              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-background/10 relative">
                 <Image
-                  src={logoSrc}
-                  alt={`${companyName} Logo`}
-                  width={300}
-                  height={300}
-                  className="opacity-80"
+                  src="/images/about/company-profile.jpg"
+                  alt={`${companyName} company profile`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
             </div>
@@ -256,8 +254,15 @@ export default async function AboutPage() {
                 ))}
               </div>
             </div>
-            <div className="aspect-[4/3] bg-background/10 rounded-lg flex items-center justify-center">
-              <Users className="h-32 w-32 text-primary/30" />
+            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-background/10">
+              <video
+                src="https://d1c6gk3tn6ydje.cloudfront.net/1686395436736225280%2F5c588a42c0832627edc50a89de5be982.mp4"
+                poster="/images/about/video-poster.jpg"
+                controls
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-cover rounded-xl"
+              />
             </div>
           </div>
         </div>

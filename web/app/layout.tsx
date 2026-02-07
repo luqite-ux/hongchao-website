@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { fetchSiteSettings } from "@/lib/site-settings";
+import { fetchNavCategories } from "@/lib/product-categories";
 import { urlForImage } from "@/lib/sanity.image";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -30,12 +31,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const settings = await fetchSiteSettings();
+  const [settings, productCategories] = await Promise.all([
+    fetchSiteSettings(),
+    fetchNavCategories(),
+  ]);
 
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Header settings={settings} />
+        <Header settings={settings} productCategories={productCategories} />
         <main>{children}</main>
         <Footer settings={settings} />
         <Analytics />

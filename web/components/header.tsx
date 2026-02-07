@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { Menu, X, ChevronDown, Phone, Mail } from "lucide-react"
+import { Menu, X, ChevronDown, Phone, Mail, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
@@ -16,45 +16,24 @@ import {
 import { cn } from "@/lib/utils"
 import { urlForImage } from "@/lib/sanity.image"
 import type { SiteSettings } from "@/lib/site-settings"
-
-const products = [
-  {
-    title: "Vibratory Bowl Feeder",
-    href: "/products/vibratory-bowl-feeder",
-    description: "Custom-designed bowl feeders for precise part sorting and orientation",
-  },
-  {
-    title: "Centrifugal Feeder",
-    href: "/products/centrifugal-feeder",
-    description: "High-speed feeding systems for lightweight and small parts",
-  },
-  {
-    title: "Step Feeder",
-    href: "/products/step-feeder",
-    description: "Gentle handling for fragile or complex-shaped components",
-  },
-  {
-    title: "Elevator Hopper",
-    href: "/products/elevator-hopper",
-    description: "Bulk material lifting, buffering, and continuous supply systems",
-  },
-  {
-    title: "Auxiliary Equipment",
-    href: "/products/auxiliary-equipment",
-    description: "Linear feeders, frames, sound enclosures, hoppers, and controls",
-  },
-]
+import type { ProductCategory } from "@/lib/product-categories"
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Products", href: "/products", children: products },
+  { name: "Products", href: "/products", isProducts: true },
   { name: "Videos", href: "/videos" },
   { name: "Technology", href: "/technology" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ]
 
-export function Header({ settings }: { settings: SiteSettings }) {
+export function Header({
+  settings,
+  productCategories = [],
+}: {
+  settings: SiteSettings
+  productCategories?: ProductCategory[]
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false)
 
@@ -117,53 +96,68 @@ export function Header({ settings }: { settings: SiteSettings }) {
           </Link>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden lg:flex">
+          <NavigationMenu className="hidden lg:flex" viewport={false}>
             <NavigationMenuList>
               {navigation.map((item) =>
-                item.children ? (
+                item.isProducts && productCategories.length === 0 ? (
                   <NavigationMenuItem key={item.name}>
-                    <NavigationMenuTrigger className="bg-transparent text-foreground hover:text-primary data-[state=open]:text-primary">
-                      {item.name}
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/products"
+                        className="inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors hover:text-primary focus:text-primary focus:outline-none"
+                      >
+                        Products
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ) : item.isProducts ? (
+                  <NavigationMenuItem key={item.name}>
+                    <NavigationMenuTrigger
+                      className="bg-transparent text-foreground hover:text-primary data-[state=open]:text-primary"
+                    >
+                      Products
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid w-[500px] gap-3 p-4 md:grid-cols-2">
-                        {item.children.map((child) => (
-                          <li key={child.title}>
+                        {productCategories.map((cat) => (
+                          <li key={cat._id}>
                             <NavigationMenuLink asChild>
                               <Link
-                                href={child.href}
+                                href={cat.slug ? `/products/${cat.slug}` : "/products"}
                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               >
-                                <div className="text-sm font-medium leading-none">{child.title}</div>
-                                <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                  {child.description}
-                                </p>
+                                <span className="font-medium">{cat.title}</span>
+                                {cat.description ? (
+                                  <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                                    {cat.description}
+                                  </p>
+                                ) : null}
                               </Link>
                             </NavigationMenuLink>
                           </li>
                         ))}
-                        <li className="col-span-2 border-t pt-3 mt-2">
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href="/products"
-                              className="flex items-center justify-center gap-2 text-sm font-medium text-primary hover:underline"
-                            >
-                              View All Products
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
                       </ul>
+                      <div className="flex justify-center border-t border-border px-4 pb-4 pt-3">
+                        <Link
+                          href="/products"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/90 transition-colors"
+                        >
+                          View All Products
+                          <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
+                        </Link>
+                      </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 ) : (
                   <NavigationMenuItem key={item.name}>
-                    <Link href={item.href} legacyBehavior passHref>
-                      <NavigationMenuLink className={cn(
+                    <NavigationMenuLink
+                      asChild
+                      className={cn(
                         "group inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors hover:text-primary focus:text-primary focus:outline-none"
-                      )}>
-                        {item.name}
-                      </NavigationMenuLink>
-                    </Link>
+                      )}
+                    >
+                      <Link href={item.href}>{item.name}</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 )
               )}
@@ -198,7 +192,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
         <div className="lg:hidden border-t border-border">
           <div className="space-y-1 px-4 pb-4 pt-2">
             {navigation.map((item) =>
-              item.children ? (
+              item.isProducts && productCategories.length > 0 ? (
                 <div key={item.name}>
                   <button
                     className="flex w-full items-center justify-between rounded-md py-3 text-base font-medium text-foreground hover:text-primary"
@@ -214,19 +208,28 @@ export function Header({ settings }: { settings: SiteSettings }) {
                   </button>
                   {mobileProductsOpen && (
                     <div className="ml-4 space-y-1 border-l-2 border-primary pl-4">
-                      {item.children.map((child) => (
+                      {productCategories.map((cat) => (
                         <Link
-                          key={child.title}
-                          href={child.href}
+                          key={cat._id}
+                          href={cat.slug ? `/products/${cat.slug}` : "/products"}
                           className="block py-2 text-sm text-muted-foreground hover:text-primary"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {child.title}
+                          {cat.title}
                         </Link>
                       ))}
                     </div>
                   )}
                 </div>
+              ) : item.isProducts ? (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="block rounded-md py-3 text-base font-medium text-foreground hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
               ) : (
                 <Link
                   key={item.name}
