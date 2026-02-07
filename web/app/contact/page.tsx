@@ -318,9 +318,15 @@ export default async function ContactPage() {
               Visit our manufacturing facility in Suzhou, China
             </p>
           </div>
-          <div className="aspect-[21/9] bg-background rounded-lg border border-border flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-16 w-16 text-primary/30 mx-auto mb-4" />
+          <div className="bg-background rounded-lg border border-border overflow-hidden">
+            <iframe
+              title="Our location - No.81 Caixing Road, Linhu Town, Wuzhong District, Suzhou, Jiangsu, China"
+              src="https://www.google.com/maps?q=No.81+Caixing+Road,+Linhu+Town,+Wuzhong+District,+Suzhou,+Jiangsu,+China&output=embed"
+              className="w-full h-[240px] md:h-[360px] border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <div className="text-center py-4 px-4">
               <p className="text-muted-foreground">
                 No.81 Caixing Road, Linhu Town, Wuzhong District
               </p>
