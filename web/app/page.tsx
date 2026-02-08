@@ -46,10 +46,14 @@ const features = [
   },
 ]
 
+type CategoryLite = { _id?: string; title?: string; slug?: string | null; description?: string | null; image?: unknown }
+type HomeProductLite = { _id?: string; title?: string; slug?: string | null; excerpt?: string | null; mainImage?: unknown; category?: { slug?: string | null } | null }
+type HomepageLite = { featuredProducts?: unknown[]; stats?: Array<{ value: string; label: string }> } | null
+
 export default async function HomePage() {
   let categories: Awaited<ReturnType<typeof fetchProductCategories>> = []
   let allProducts: unknown[] = []
-  let homepage: unknown = null
+  let homepage: HomepageLite = null
   try {
     const result = await Promise.all([
       fetchProductCategories().catch(() => [] as Awaited<ReturnType<typeof fetchProductCategories>>),
@@ -58,14 +62,13 @@ export default async function HomePage() {
     ])
     categories = result[0]
     allProducts = result[1] ?? []
-    homepage = result[2]
+    homepage = (result[2] ?? null) as HomepageLite
   } catch {
     // Sanity 不可用（超时/网络）时使用空数据，页面照常渲染
   }
-  const categoriesWithSlug = (categories ?? []).filter((c) => c.slug)
-  const representativeProducts = (allProducts ?? [])
-    .filter((p: { slug?: string | null; category?: { slug?: string | null } }) => p?.slug && p?.category?.slug)
-    .slice(0, 5)
+  const categoriesWithSlug = ((categories ?? []) as CategoryLite[]).filter((c) => Boolean(c?.slug))
+  const representativeProducts = ((allProducts ?? []) as HomeProductLite[]).filter((p) => Boolean(p?.slug && p?.category?.slug)).slice(0, 5)
+
 
   // 分类卡片：仅从 productCategory 查询，取前 5 个；图片用 productCategory.image，无则 /placeholder.svg
   const displayCategories = categoriesWithSlug.slice(0, 5)
@@ -73,12 +76,10 @@ export default async function HomePage() {
   // Featured Products：优先 Sanity homepage.featuredProducts，否则用 representativeProducts
   const featuredProducts =
     (homepage?.featuredProducts?.length ?? 0) > 0
-      ? (homepage.featuredProducts ?? []).filter(
-          (p: { slug?: string | null; category?: { slug?: string | null } }) => p?.slug && p?.category?.slug
-        )
+      ? ((homepage?.featuredProducts ?? []) as HomeProductLite[]).filter((p) => Boolean(p?.slug && p?.category?.slug))
       : representativeProducts
 
-  const stats = homepage?.stats ?? []
+  const stats = (homepage?.stats ?? []) as Array<{ value: string; label: string }>
 
   return (
     <div className="flex flex-col">
@@ -240,7 +241,7 @@ export default async function HomePage() {
 
           {/* 分类卡片：3 行 2 列网格，前 5 个分类 + 1 个 CTA 卡片 */}
           <div className="grid md:grid-cols-2 gap-8">
-            {displayCategories.slice(0, 5).map((category: { _id: string; title: string; slug: string | null; description?: string | null; image?: unknown }, index: number) => (
+            {displayCategories.map((category, index) => (
               <Link
                 key={category._id}
                 href={`/products/${category.slug}`}
@@ -252,7 +253,7 @@ export default async function HomePage() {
                       <div className="relative w-full h-full">
                         <Image
                           src={category.image ? urlForProductImage(category.image).width(1200).url() : "/placeholder.svg"}
-                          alt={category.title}
+                          alt={category.title ?? ""}
                           fill
                           className="object-contain group-hover:scale-105 transition-transform duration-500"
                           sizes="(max-width: 768px) 100vw, 50vw"
@@ -326,10 +327,10 @@ export default async function HomePage() {
             <div className="mt-12">
               <h3 className="text-xl font-bold text-[#1F1F1F] mb-6">Featured Products</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {featuredProducts.map((p: { _id: string; title: string; slug: string; excerpt?: string | null; mainImage?: unknown; category: { slug: string } }) => (
+                {featuredProducts.map((p, index) => (
                   <Link
-                    key={p._id}
-                    href={`/products/${p.category.slug}/${p.slug}`}
+                    key={p._id ?? index}
+                    href={`/products/${p.category?.slug ?? ""}/${p.slug ?? ""}`}
                     className="group block border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors"
                   >
                     <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
@@ -337,7 +338,7 @@ export default async function HomePage() {
                         <div className="relative w-full h-full">
                           <Image
                             src={p.mainImage ? urlForProductImage(p.mainImage).width(1200).url() : "/placeholder.svg"}
-                            alt={p.title}
+                            alt={p.title ?? ""}
                             fill
                             className="object-contain group-hover:scale-105 transition-transform duration-500"
                             sizes="(max-width: 768px) 50vw, 20vw"
