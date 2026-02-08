@@ -5,6 +5,7 @@ import { homepage } from './homepage'
 import { caseStudy } from './caseStudy'
 import { video } from './video'
 import { inquiry } from './inquiry'
+import { patent } from './patent'
 
 export const schemaTypes = [
   siteSettings,
@@ -14,6 +15,7 @@ export const schemaTypes = [
   caseStudy,
   video,
   inquiry,
+  patent,
 ]
 
 console.log('[Sanity schema] schemaTypes.length:', schemaTypes.length)

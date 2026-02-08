@@ -228,86 +228,84 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* 分类卡片：数据来自 productCategory，图片用 productCategory.image，无则 /placeholder.svg */}
-          {displayCategories.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-8">
-              {displayCategories.slice(0, 4).map((category: { _id: string; title: string; slug: string | null; description?: string | null; image?: unknown }, index: number) => (
-                <Link
-                  key={category._id}
-                  href={`/products/${category.slug}`}
-                  className="group block"
-                >
-                  <div className="border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors">
-                    <div className="aspect-[4/3] bg-[#F5F5F5] relative overflow-hidden">
-                      <Image
-                        src={category.image ? urlForImage(category.image).width(1200).height(900).url() : "/placeholder.svg"}
-                        alt={category.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="text-[10px] text-[#9CA3AF] font-mono tracking-wider bg-white/90 px-2 py-1">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors">
-                        {category.title}
-                      </h3>
-                      <p className="text-[#6B6B6B] mt-2 text-sm leading-relaxed">
-                        {category.description ?? "Explore our feeding systems and solutions."}
-                      </p>
-                      <div className="mt-6 flex items-center text-xs font-medium text-[#6B6B6B] group-hover:text-[#F6A12A] transition-colors">
-                        View Solutions
-                        <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </div>
+          {/* 分类卡片：3 行 2 列网格，前 5 个分类 + 1 个 CTA 卡片 */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {displayCategories.slice(0, 5).map((category: { _id: string; title: string; slug: string | null; description?: string | null; image?: unknown }, index: number) => (
+              <Link
+                key={category._id}
+                href={`/products/${category.slug}`}
+                className="group block"
+              >
+                <div className="border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors">
+                  <div className="aspect-[4/3] bg-[#F5F5F5] relative overflow-hidden">
+                    <Image
+                      src={category.image ? urlForImage(category.image).width(1200).height(900).url() : "/placeholder.svg"}
+                      alt={category.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="text-[10px] text-[#9CA3AF] font-mono tracking-wider bg-white/90 px-2 py-1">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-          ) : null}
-
-          {/* 第 5 个分类：全宽卡片，图片同上 productCategory.image 或 placeholder */}
-          {displayCategories.length >= 5 ? (
-            <div className="mt-8">
-              <Link href={`/products/${displayCategories[4].slug}`} className="group block">
-                <div className="border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors">
-                  <div className="grid md:grid-cols-3 gap-0">
-                    <div className="aspect-[4/3] md:aspect-auto bg-[#F5F5F5] relative overflow-hidden">
-                      <Image
-                        src={displayCategories[4].image ? urlForImage(displayCategories[4].image).width(1200).height(900).url() : "/placeholder.svg"}
-                        alt={displayCategories[4].title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="text-[10px] text-[#9CA3AF] font-mono tracking-wider bg-white/90 px-2 py-1">
-                          05
-                        </span>
-                      </div>
-                    </div>
-                    <div className="md:col-span-2 p-6 md:p-8 flex flex-col justify-center">
-                      <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-2">Product Category</p>
-                      <h3 className="text-xl font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors">
-                        {displayCategories[4].title}
-                      </h3>
-                      <p className="text-[#6B6B6B] mt-3 text-sm leading-relaxed max-w-lg">
-                        {displayCategories[4].description ?? "Explore equipment and solutions."}
-                      </p>
-                      <div className="mt-6 flex items-center text-xs font-medium text-[#6B6B6B] group-hover:text-[#F6A12A] transition-colors">
-                        View Equipment
-                        <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-[#6B6B6B] mt-2 text-sm leading-relaxed">
+                      {category.description ?? "Explore our feeding systems and solutions."}
+                    </p>
+                    <div className="mt-6 flex items-center text-xs font-medium text-[#6B6B6B] group-hover:text-[#F6A12A] transition-colors">
+                      View Solutions
+                      <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </div>
               </Link>
+            ))}
+            {/* CTA 卡片：右下角 */}
+            <div className="border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors flex flex-col overflow-hidden">
+              <div
+                className="min-h-[200px] flex flex-col items-center justify-center gap-4 px-6 py-6"
+                style={{
+                  backgroundColor: "#FAFAFA",
+                  backgroundImage: `
+                    linear-gradient(to bottom right, rgb(31 31 31 / 0.04), rgb(246 161 42 / 0.06)),
+                    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)
+                  `,
+                  backgroundSize: "100% 100%, 24px 24px, 24px 24px",
+                }}
+              >
+                <Phone className="h-7 w-7 text-[#F6A12A]" aria-hidden />
+                <ul className="space-y-1.5 text-xs text-[#6B6B6B] text-center max-w-[200px]">
+                  <li>Reply within 24 hours</li>
+                  <li>Send part drawings / samples</li>
+                  <li>Custom feeding solution</li>
+                </ul>
+              </div>
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-lg font-semibold text-[#1F1F1F]">Need a custom feeding solution?</h3>
+                <p className="text-[#6B6B6B] mt-1.5 text-sm leading-relaxed">
+                  Share your part drawings and requirements. We&apos;ll respond within 24 hours.
+                </p>
+                <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                  <Button asChild size="sm" className="bg-[#F6A12A] hover:bg-[#D4871F] text-white font-medium rounded-none">
+                    <Link href="/contact">Request a Quote</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="font-medium rounded-none border-[#E5E5E5]">
+                    <Link href="/contact#engineer">
+                      <Phone className="mr-2 h-3 w-3" />
+                      Talk to an Engineer
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
-          ) : null}
+          </div>
 
           {/* Featured Products：优先 Sanity homepage.featuredProducts，否则取产品列表前 5 */}
           {featuredProducts.length > 0 ? (
@@ -320,14 +318,18 @@ export default async function HomePage() {
                     href={`/products/${p.category.slug}/${p.slug}`}
                     className="group block border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors"
                   >
-                    <div className="aspect-[4/3] bg-[#F5F5F5] relative overflow-hidden">
-                      <Image
-                        src={p.mainImage ? urlForImage(p.mainImage).width(1200).height(800).url() : "/placeholder.svg"}
-                        alt={p.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 50vw, 20vw"
-                      />
+                    <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={p.mainImage ? urlForImage(p.mainImage).width(1200).height(800).url() : "/placeholder.svg"}
+                            alt={p.title}
+                            fill
+                            className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 50vw, 20vw"
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4">
                       <h4 className="text-sm font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors line-clamp-2">

@@ -3,6 +3,8 @@ import Link from "next/link"
 import { ArrowRight, Lightbulb, Cpu, Cog, Microscope, Shield, Zap, Award, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { sanityClient } from "@/lib/sanity.client"
+import { patentsQuery } from "@/lib/sanity.queries"
 
 export const metadata: Metadata = {
   title: "Technology & Patents - Innovation at HONGCHAO",
@@ -34,25 +36,6 @@ const technologies = [
     description: "Innovative enclosure and isolation designs achieve industry-leading noise levels for operator comfort.",
     benefits: ["< 65dB with enclosure", "Vibration isolation", "OSHA compliant", "Improved work environment"],
   },
-]
-
-const patents = [
-  { type: "Invention", title: "Variable Frequency Vibratory Drive System", number: "CN-XXXXX-A" },
-  { type: "Invention", title: "Intelligent Bowl Feeder Control Method", number: "CN-XXXXX-B" },
-  { type: "Invention", title: "Multi-Track Linear Feeder Design", number: "CN-XXXXX-C" },
-  { type: "Invention", title: "Vision-Based Part Orientation System", number: "CN-XXXXX-D" },
-  { type: "Invention", title: "Adaptive Vibration Amplitude Control", number: "CN-XXXXX-E" },
-  { type: "Invention", title: "Low-Energy Electromagnetic Drive", number: "CN-XXXXX-F" },
-  { type: "Invention", title: "Noise-Reducing Bowl Construction", number: "CN-XXXXX-G" },
-  { type: "Invention", title: "Quick-Change Tooling System", number: "CN-XXXXX-H" },
-  { type: "Utility Model", title: "Compact Elevator Hopper Design", number: "CN-XXXXX-U1" },
-  { type: "Utility Model", title: "Modular Bowl Feeder Frame", number: "CN-XXXXX-U2" },
-  { type: "Utility Model", title: "Integrated Sound Enclosure", number: "CN-XXXXX-U3" },
-  { type: "Utility Model", title: "Adjustable Linear Track Assembly", number: "CN-XXXXX-U4" },
-  { type: "Utility Model", title: "Anti-Vibration Mounting System", number: "CN-XXXXX-U5" },
-  { type: "Utility Model", title: "Dust-Protected Drive Housing", number: "CN-XXXXX-U6" },
-  { type: "Utility Model", title: "Easy-Access Maintenance Panel", number: "CN-XXXXX-U7" },
-  { type: "Utility Model", title: "Universal Sensor Mounting Bracket", number: "CN-XXXXX-U8" },
 ]
 
 const rdProcess = [
@@ -88,7 +71,13 @@ const rdProcess = [
   },
 ]
 
-export default function TechnologyPage() {
+export default async function TechnologyPage() {
+  const patents = await sanityClient.fetch<Array<{ _id: string; title: string; patentNo?: string | null; category?: string | null }>>(
+    patentsQuery,
+    {},
+    { next: { revalidate: 60 } }
+  ).catch(() => [])
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -201,26 +190,36 @@ export default function TechnologyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {patents.map((patent) => (
-              <div key={patent.number} className="flex items-start gap-4 p-4 bg-secondary rounded-lg">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                      patent.type === "Invention" 
-                        ? "bg-primary/10 text-primary" 
-                        : "bg-muted text-muted-foreground"
-                    }`}>
-                      {patent.type}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{patent.number}</span>
-                  </div>
-                  <p className="font-medium text-foreground text-sm">{patent.title}</p>
-                </div>
+            {patents.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-muted-foreground text-sm">
+                No patents yet.
               </div>
-            ))}
+            ) : (
+              patents.map((patent) => (
+                <div key={patent._id} className="flex items-start gap-4 p-4 bg-secondary rounded-lg">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      {patent.category && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          patent.category === "Invention"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          {patent.category}
+                        </span>
+                      )}
+                      {patent.patentNo && (
+                        <span className="text-xs text-muted-foreground">{patent.patentNo}</span>
+                      )}
+                    </div>
+                    <p className="font-medium text-foreground text-sm">{patent.title}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

@@ -1,13 +1,9 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { Mail, Phone, MapPin, Clock, MessageSquare, Wrench, FileText, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { fetchSiteSettings } from "@/lib/site-settings"
+import { ContactForm } from "@/components/contact-form"
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchSiteSettings()
@@ -133,102 +129,7 @@ export default async function ContactPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input id="firstName" placeholder="John" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input id="lastName" placeholder="Smith" required />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input id="email" type="email" placeholder="john@company.com" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="company">Company *</Label>
-                        <Input id="company" placeholder="Your Company Name" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="country">Country *</Label>
-                        <Input id="country" placeholder="United States" required />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2" id="engineer">
-                      <Label htmlFor="inquiryType">Inquiry Type *</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select inquiry type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {inquiryTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="industry">Industry</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your industry" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="automotive">Automotive</SelectItem>
-                          <SelectItem value="electronics">Electronics</SelectItem>
-                          <SelectItem value="medical">Medical Devices</SelectItem>
-                          <SelectItem value="pharmaceutical">Pharmaceutical</SelectItem>
-                          <SelectItem value="consumer">Consumer Goods</SelectItem>
-                          <SelectItem value="hardware">Hardware & Fasteners</SelectItem>
-                          <SelectItem value="food">Food & Beverage</SelectItem>
-                          <SelectItem value="aerospace">Aerospace</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="partDescription">Part Description</Label>
-                      <Input id="partDescription" placeholder="Describe the parts you need to feed" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
-                      <Textarea 
-                        id="message" 
-                        placeholder="Tell us about your project requirements, feed rate needs, and any special considerations..."
-                        rows={5}
-                        required
-                      />
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input type="checkbox" id="consent" className="mt-1" required />
-                      <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal">
-                        I agree to receive communications from {companyName}. You can unsubscribe at any time.
-                      </Label>
-                    </div>
-
-                    <Button type="submit" size="lg" className="w-full bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold">
-                      Submit Inquiry
-                    </Button>
-                  </form>
+                  <ContactForm companyName={companyName} />
                 </CardContent>
               </Card>
             </div>

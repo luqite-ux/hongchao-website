@@ -9,6 +9,7 @@ import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/
 import { urlForImage } from "@/lib/sanity.image"
 import { PortableTextFallback } from "@/lib/portable-text"
 import { VideoDemo } from "@/components/video-demo"
+import { ProductGalleryClient } from "@/components/product-gallery-client"
 
 type Props = {
   params: Promise<{ category: string; product: string }>
@@ -58,12 +59,16 @@ export default async function ProductDetailPage({ params }: Props) {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ")
 
-  const mainImageUrl = data.mainImage
-    ? urlForImage(data.mainImage).width(1200).height(800).url()
-    : "/placeholder.svg"
-
   const gallery = (data.gallery ?? []) as { _type?: string; asset?: unknown }[]
-  const hasGallery = gallery.length > 0
+  const specsList = (data.specs ?? []) as { label?: string; value?: string }[]
+  const mainImageEntry = data.mainImage
+    ? { url: urlForImage(data.mainImage).width(1200).height(800).url(), alt: data.title }
+    : { url: "/placeholder.svg", alt: data.title }
+  const galleryEntries = gallery.map((img, i) => ({
+    url: urlForImage(img).width(1200).height(800).url(),
+    alt: `${data.title} view ${i + 1}`,
+  }))
+  const galleryImages = [mainImageEntry, ...galleryEntries]
 
   return (
     <div className="flex flex-col">
@@ -97,36 +102,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Product Image Gallery */}
-            <div className="space-y-4">
-              <div className="aspect-[4/3] relative overflow-hidden border border-[#E5E5E5] bg-[#F5F5F5]">
-                <Image
-                  src={mainImageUrl}
-                  alt={data.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
-              </div>
-              {hasGallery ? (
-                <div className="grid grid-cols-4 gap-3">
-                  {gallery.map((img, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square relative overflow-hidden border border-[#E5E5E5] bg-[#F5F5F5]"
-                    >
-                      <Image
-                        src={urlForImage(img).width(400).height(400).url()}
-                        alt={`${data.title} view ${i + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 25vw, 12vw"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            <ProductGalleryClient images={galleryImages} productTitle={data.title} />
 
             {/* Product Info */}
             <div>
@@ -179,6 +155,33 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* 规格参数 */}
+      {specsList.length > 0 ? (
+        <section className="py-12 lg:py-16 bg-secondary">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">规格参数</h2>
+            <div className="overflow-x-auto border border-border rounded-lg bg-background">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-4 py-3 font-semibold text-foreground">参数</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">值</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {specsList.map((row, i) => (
+                    <tr key={i} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 text-muted-foreground">{row.label ?? "—"}</td>
+                      <td className="px-4 py-3 text-foreground">{row.value ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Product Description (Portable Text) */}
       {(data.body as unknown[])?.length > 0 ? (

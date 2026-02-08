@@ -38,7 +38,20 @@ export default defineConfig({
                   .documentId("homepage")
               ),
             S.divider(),
-            ...S.documentTypeListItems().filter((item) => item.getId() !== "homepage"),
+            S.listItem()
+              .id("patents")
+              .title("专利（Patent）")
+              .child(
+                S.documentTypeList("patent")
+                  .title("专利列表")
+                  .defaultOrdering([
+                    { field: "order", direction: "asc" },
+                    { field: "_createdAt", direction: "desc" },
+                  ])
+              ),
+            ...S.documentTypeListItems().filter(
+              (item) => item.getId() !== "homepage" && item.getId() !== "patent"
+            ),
           ]),
     }),
     visionTool({

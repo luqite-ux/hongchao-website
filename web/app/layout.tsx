@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "sonner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { fetchSiteSettings } from "@/lib/site-settings";
@@ -42,6 +43,7 @@ export default async function RootLayout({
         <Header settings={settings} productCategories={productCategories} />
         <main>{children}</main>
         <Footer settings={settings} />
+        <Toaster richColors position="top-center" />
         <Analytics />
       </body>
     </html>

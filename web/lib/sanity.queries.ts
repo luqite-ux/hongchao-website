@@ -72,19 +72,30 @@ export const productsByCategorySlugQuery = groq`
   }
 `;
 
-// 按 category slug + product slug 取单品详情；body 为 Portable Text 原样返回
+// 按 category slug + product slug 取单品详情；画廊仅用主图 + 产品图集（不用图库）
 export const productBySlugsQuery = groq`
   *[_type == "product" && slug.current == $product && category->slug.current == $category][0]{
     _id,
     title,
     "excerpt": summary,
     "mainImage": heroImage,
-    gallery,
+    "gallery": galleryImages,
     "body": content,
+    specs,
     "category": category->{
       title,
       "slug": slug.current
     }
+  }
+`;
+
+// 专利列表：按 order 升序，_createdAt 降序兜底
+export const patentsQuery = groq`
+  *[_type == "patent"] | order(order asc, _createdAt desc) {
+    _id,
+    title,
+    patentNo,
+    category
   }
 `;
 
