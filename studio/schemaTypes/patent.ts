@@ -31,6 +31,13 @@ export const patent = defineType({
       description: '发明或实用新型',
     }),
     defineField({
+      name: 'image',
+      title: '专利图片',
+      type: 'image',
+      description: '可选，如专利证书、示意图等，用于列表展示',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'summary',
       title: '摘要',
       type: 'text',

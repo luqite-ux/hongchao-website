@@ -6,7 +6,7 @@ import { ArrowRight, ArrowLeft, Phone, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
-import { urlForImage } from "@/lib/sanity.image"
+import { urlForProductImage } from "@/lib/sanity.image"
 import { PortableTextFallback } from "@/lib/portable-text"
 import { VideoDemo } from "@/components/video-demo"
 import { ProductGalleryClient } from "@/components/product-gallery-client"
@@ -62,13 +62,12 @@ export default async function ProductDetailPage({ params }: Props) {
   const gallery = (data.gallery ?? []) as { _type?: string; asset?: unknown }[]
   const specsList = (data.specs ?? []) as { label?: string; value?: string }[]
   const mainImageEntry = data.mainImage
-    ? { url: urlForImage(data.mainImage).width(1200).height(800).url(), alt: data.title }
+    ? { url: urlForProductImage(data.mainImage).width(1200).url(), alt: data.title }
     : { url: "/placeholder.svg", alt: data.title }
   const galleryEntries = gallery.map((img, i) => ({
-    url: urlForImage(img).width(1200).height(800).url(),
+    url: urlForProductImage(img).width(1200).url(),
     alt: `${data.title} view ${i + 1}`,
   }))
-  const galleryImages = [mainImageEntry, ...galleryEntries]
 
   return (
     <div className="flex flex-col">
@@ -101,8 +100,8 @@ export default async function ProductDetailPage({ params }: Props) {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-            {/* Product Image Gallery */}
-            <ProductGalleryClient images={galleryImages} productTitle={data.title} />
+            {/* 仅主图，无缩略图，避免右侧大片空白 */}
+            <ProductGalleryClient images={[mainImageEntry]} productTitle={data.title} />
 
             {/* Product Info */}
             <div>
@@ -193,6 +192,32 @@ export default async function ProductDetailPage({ params }: Props) {
         </section>
       ) : null}
 
+      {/* 其余产品图片：放在 Description 下方，避免主图右侧空白 */}
+      {galleryEntries.length > 0 ? (
+        <section className="py-12 lg:py-16 bg-background">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">产品图片</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {galleryEntries.map((img, i) => (
+                <div className="aspect-square relative overflow-hidden rounded-lg border border-border bg-neutral-50">
+                  <div className="absolute inset-3 flex items-center justify-center">
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={img.url}
+                        alt={img.alt}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* Product Demonstration Video */}
       <section className="py-16 lg:py-20 bg-white border-t border-[#E5E5E5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -239,18 +264,22 @@ export default async function ProductDetailPage({ params }: Props) {
                     href={`/products/${category}/${related.slug}`}
                     className="group block border border-[#E5E5E5] bg-white hover:border-[#F6A12A]/30 transition-colors"
                   >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-[#F5F5F5]">
-                      <Image
-                        src={
-                          related.mainImage
-                            ? urlForImage(related.mainImage).width(1200).height(800).url()
-                            : "/placeholder.svg"
-                        }
-                        alt={related.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
+                    <div className="aspect-[4/3] relative overflow-hidden bg-neutral-50">
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={
+                              related.mainImage
+                                ? urlForProductImage(related.mainImage).width(1200).url()
+                                : "/placeholder.svg"
+                            }
+                            alt={related.title}
+                            fill
+                            className="object-contain group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="p-5">
                       <h3 className="font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors">

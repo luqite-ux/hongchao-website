@@ -89,13 +89,14 @@ export const productBySlugsQuery = groq`
   }
 `;
 
-// 专利列表：按 order 升序，_createdAt 降序兜底
+// 专利列表：按 order 升序，_createdAt 降序兜底（含专利图片）
 export const patentsQuery = groq`
   *[_type == "patent"] | order(order asc, _createdAt desc) {
     _id,
     title,
     patentNo,
-    category
+    category,
+    image
   }
 `;
 

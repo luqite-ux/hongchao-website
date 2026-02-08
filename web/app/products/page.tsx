@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { sanityClient } from "@/lib/sanity.client"
 import { productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
-import { urlForImage } from "@/lib/sanity.image"
+import { urlForProductImage } from "@/lib/sanity.image"
 
 export const metadata: Metadata = {
   title: "Products - Vibratory Feeders & Automation Equipment",
@@ -90,14 +90,18 @@ export default async function ProductsPage() {
                   href={`/products/${p.category!.slug}/${p.slug ?? p._id}`}
                   className="group block border border-border hover:border-primary/30 transition-colors overflow-hidden"
                 >
-                  <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                    <Image
-                      src={p.mainImage ? urlForImage(p.mainImage).width(1200).height(800).url() : "/placeholder.svg"}
-                      alt={p.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+                  <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
+                    <div className="absolute inset-4 flex items-center justify-center">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={p.mainImage ? urlForProductImage(p.mainImage).width(1200).url() : "/placeholder.svg"}
+                          alt={p.title}
+                          fill
+                          className="object-contain group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="p-5">
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">

@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Lightbulb, Cpu, Cog, Microscope, Shield, Zap, Award, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { sanityClient } from "@/lib/sanity.client"
 import { patentsQuery } from "@/lib/sanity.queries"
+import { urlForProductImage } from "@/lib/sanity.image"
 
 export const metadata: Metadata = {
   title: "Technology & Patents - Innovation at HONGCHAO",
@@ -72,7 +74,13 @@ const rdProcess = [
 ]
 
 export default async function TechnologyPage() {
-  const patents = await sanityClient.fetch<Array<{ _id: string; title: string; patentNo?: string | null; category?: string | null }>>(
+  const patents = await sanityClient.fetch<Array<{
+    _id: string
+    title: string
+    patentNo?: string | null
+    category?: string | null
+    image?: unknown
+  }>>(
     patentsQuery,
     {},
     { next: { revalidate: 60 } }
@@ -189,33 +197,50 @@ export default async function TechnologyPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             {patents.length === 0 ? (
               <div className="col-span-full py-12 text-center text-muted-foreground text-sm">
                 No patents yet.
               </div>
             ) : (
               patents.map((patent) => (
-                <div key={patent._id} className="flex items-start gap-4 p-4 bg-secondary rounded-lg">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      {patent.category && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          patent.category === "Invention"
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}>
-                          {patent.category}
-                        </span>
-                      )}
-                      {patent.patentNo && (
-                        <span className="text-xs text-muted-foreground">{patent.patentNo}</span>
-                      )}
+                <div key={patent._id} className="bg-secondary rounded-lg overflow-hidden border border-border hover:border-primary/20 transition-colors">
+                  {patent.image ? (
+                    <div className="aspect-[4/3] bg-neutral-50 relative">
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={urlForProductImage(patent.image).width(800).url()}
+                            alt={patent.title}
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <p className="font-medium text-foreground text-sm">{patent.title}</p>
+                  ) : null}
+                  <div className="flex items-start gap-4 p-4">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        {patent.category && (
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            patent.category === "Invention"
+                              ? "bg-primary/10 text-primary"
+                              : "bg-muted text-muted-foreground"
+                          }`}>
+                            {patent.category}
+                          </span>
+                        )}
+                        {patent.patentNo && (
+                          <span className="text-xs text-muted-foreground">{patent.patentNo}</span>
+                        )}
+                      </div>
+                      <p className="font-medium text-foreground text-sm">{patent.title}</p>
+                    </div>
                   </div>
                 </div>
               ))

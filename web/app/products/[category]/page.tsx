@@ -6,7 +6,7 @@ import { ArrowRight, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsByCategorySlugQuery, productCategoriesQuery } from "@/lib/sanity.queries"
-import { urlForImage } from "@/lib/sanity.image"
+import { urlForProductImage } from "@/lib/sanity.image"
 
 // 每次请求从 Sanity 拉取最新数据，避免构建时静态快照只含当时的产品数量
 export const dynamic = "force-dynamic"
@@ -55,7 +55,7 @@ export default async function CategoryPage({ params }: Props) {
 
   const heroImageSource = data.products?.[0]?.mainImage
   const heroImageUrl = heroImageSource
-    ? urlForImage(heroImageSource).width(1600).height(1200).url()
+    ? urlForProductImage(heroImageSource).width(1600).url()
     : "/placeholder.svg"
 
   const categoryTitle =
@@ -82,12 +82,12 @@ export default async function CategoryPage({ params }: Props) {
 
       {/* Hero */}
       <section className="relative bg-foreground text-background py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 flex items-center justify-center p-4">
           <Image
             src={heroImageUrl}
             alt=""
             fill
-            className="object-cover opacity-30"
+            className="object-contain opacity-30"
             sizes="100vw"
             priority
           />
@@ -145,18 +145,22 @@ export default async function CategoryPage({ params }: Props) {
                         : "border-border hover:border-primary/30"
                     }`}
                   >
-                    <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                      <Image
-                        src={
-                          p.mainImage
-                            ? urlForImage(p.mainImage).width(1200).height(800).url()
-                            : "/placeholder.svg"
-                        }
-                        alt={p.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                    <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={
+                              p.mainImage
+                                ? urlForProductImage(p.mainImage).width(1200).url()
+                                : "/placeholder.svg"
+                            }
+                            alt={p.title}
+                            fill
+                            className="object-contain group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="p-5">
                       <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">

@@ -6,7 +6,7 @@ import { fetchProductCategories } from "@/lib/product-categories"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsQuery } from "@/lib/sanity.queries"
 import { homepageQuery } from "@/lib/sanity/queries"
-import { urlForImage } from "@/lib/sanity.image"
+import { urlForProductImage } from "@/lib/sanity.image"
 
 // 静态 Hero 文案（不依赖 Sanity homepage 文档，与原设计一致）
 const HERO = {
@@ -47,11 +47,21 @@ const features = [
 ]
 
 export default async function HomePage() {
-  const [categories, allProducts, homepage] = await Promise.all([
-    fetchProductCategories(),
-    sanityClient.fetch(productsQuery),
-    sanityClient.fetch(homepageQuery, {}, { next: { revalidate: 60 } }).catch(() => null),
-  ])
+  let categories: Awaited<ReturnType<typeof fetchProductCategories>> = []
+  let allProducts: unknown[] = []
+  let homepage: unknown = null
+  try {
+    const result = await Promise.all([
+      fetchProductCategories().catch(() => [] as Awaited<ReturnType<typeof fetchProductCategories>>),
+      sanityClient.fetch(productsQuery).catch(() => []),
+      sanityClient.fetch(homepageQuery, {}, { next: { revalidate: 60 } }).catch(() => null),
+    ])
+    categories = result[0]
+    allProducts = result[1] ?? []
+    homepage = result[2]
+  } catch {
+    // Sanity 不可用（超时/网络）时使用空数据，页面照常渲染
+  }
   const categoriesWithSlug = (categories ?? []).filter((c) => c.slug)
   const representativeProducts = (allProducts ?? [])
     .filter((p: { slug?: string | null; category?: { slug?: string | null } }) => p?.slug && p?.category?.slug)
@@ -237,14 +247,18 @@ export default async function HomePage() {
                 className="group block"
               >
                 <div className="border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors">
-                  <div className="aspect-[4/3] bg-[#F5F5F5] relative overflow-hidden">
-                    <Image
-                      src={category.image ? urlForImage(category.image).width(1200).height(900).url() : "/placeholder.svg"}
-                      alt={category.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
+                  <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
+                    <div className="absolute inset-4 flex items-center justify-center">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={category.image ? urlForProductImage(category.image).width(1200).url() : "/placeholder.svg"}
+                          alt={category.title}
+                          fill
+                          className="object-contain group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </div>
+                    </div>
                     <div className="absolute top-4 left-4">
                       <span className="text-[10px] text-[#9CA3AF] font-mono tracking-wider bg-white/90 px-2 py-1">
                         {String(index + 1).padStart(2, "0")}
@@ -318,14 +332,14 @@ export default async function HomePage() {
                     href={`/products/${p.category.slug}/${p.slug}`}
                     className="group block border border-[#E5E5E5] hover:border-[#F6A12A]/30 transition-colors"
                   >
-                    <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
+                    <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
                       <div className="absolute inset-4 flex items-center justify-center">
                         <div className="relative w-full h-full">
                           <Image
-                            src={p.mainImage ? urlForImage(p.mainImage).width(1200).height(800).url() : "/placeholder.svg"}
+                            src={p.mainImage ? urlForProductImage(p.mainImage).width(1200).url() : "/placeholder.svg"}
                             alt={p.title}
                             fill
-                            className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                            className="object-contain group-hover:scale-105 transition-transform duration-500"
                             sizes="(max-width: 768px) 50vw, 20vw"
                           />
                         </div>
@@ -454,12 +468,12 @@ export default async function HomePage() {
             
             {/* Image */}
             <div className="relative">
-              <div className="aspect-[4/3] relative overflow-hidden border border-white/10">
+              <div className="aspect-[4/3] relative overflow-hidden border border-white/10 flex items-center justify-center bg-black/20">
                 <Image
                   src="/images/case-automotive.png"
                   alt="Automotive fastener feeding system"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
