@@ -54,6 +54,32 @@ export const product = defineType({
       of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
     }),
     defineField({
+      name: 'applications',
+      title: 'Application / 使用场景',
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'partType',
+          title: 'Part Type',
+          type: 'string',
+          description: 'e.g. Metal fasteners, plastic components…',
+        }),
+        defineField({
+          name: 'feedingBehavior',
+          title: 'Feeding Behavior',
+          type: 'string',
+          description: 'e.g. Continuous orientation…',
+        }),
+        defineField({
+          name: 'application',
+          title: 'Application',
+          type: 'string',
+          description: 'e.g. Assembly line integration…',
+        }),
+      ],
+    }),
+    defineField({
       name: 'specs',
       title: '规格参数',
       type: 'array',
@@ -66,6 +92,13 @@ export const product = defineType({
           ],
         }),
       ],
+    }),
+    defineField({
+      name: 'video',
+      title: '产品演示视频',
+      type: 'reference',
+      to: [{ type: 'video' }],
+      description: '可选。关联一个视频文档（可本地上传或填 YouTube/Vimeo ID）',
     }),
     defineField({
       name: 'faq',

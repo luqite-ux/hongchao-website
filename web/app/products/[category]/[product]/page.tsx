@@ -61,6 +61,13 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const gallery = (data.gallery ?? []) as { _type?: string; asset?: unknown }[]
   const specsList = (data.specs ?? []) as { label?: string; value?: string }[]
+  const applications = data?.applications as
+    | { partType?: string; feedingBehavior?: string; application?: string }
+    | undefined
+  const partType = applications?.partType?.trim()
+  const feedingBehavior = applications?.feedingBehavior?.trim()
+  const application = applications?.application?.trim()
+  const hasApplications = Boolean(partType || feedingBehavior || application)
   const mainImageEntry = data.mainImage
     ? { url: urlForProductImage(data.mainImage).width(1200).url(), alt: data.title }
     : { url: "/placeholder.svg", alt: data.title }
@@ -68,6 +75,18 @@ export default async function ProductDetailPage({ params }: Props) {
     url: urlForProductImage(img).width(1200).url(),
     alt: `${data.title} view ${i + 1}`,
   }))
+  const videoRef = data.video as
+    | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; title?: string; coverImage?: unknown; description?: string }
+    | null
+    | undefined
+  const videoUrl =
+    videoRef?.source === 'upload' && videoRef?.videoFileUrl
+      ? videoRef.videoFileUrl
+      : videoRef?.source === 'url' && videoRef?.url
+        ? videoRef.url
+        : undefined
+  const videoId = videoRef?.source === 'youtube' || videoRef?.source === 'vimeo' ? videoRef?.videoId : undefined
+  const hasVideo = Boolean(videoUrl || videoId)
 
   return (
     <div className="flex flex-col">
@@ -155,17 +174,17 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </section>
 
-      {/* 规格参数 */}
+      {/* Specifications */}
       {specsList.length > 0 ? (
         <section className="py-12 lg:py-16 bg-secondary">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">规格参数</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Specifications</h2>
             <div className="overflow-x-auto border border-border rounded-lg bg-background">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-3 font-semibold text-foreground">参数</th>
-                    <th className="px-4 py-3 font-semibold text-foreground">值</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Parameter</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Value</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -192,11 +211,46 @@ export default async function ProductDetailPage({ params }: Props) {
         </section>
       ) : null}
 
-      {/* 其余产品图片：放在 Description 下方，避免主图右侧空白 */}
+      {/* Application / 使用场景：三列信息块，仅展示有内容的项 */}
+      {hasApplications ? (
+        <section className="py-12 lg:py-16 bg-background border-t border-border">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Application</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {partType ? (
+                <div className="rounded-lg border border-border bg-muted/30 p-5">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Part Type
+                  </h3>
+                  <p className="text-sm text-foreground leading-relaxed">{partType}</p>
+                </div>
+              ) : null}
+              {feedingBehavior ? (
+                <div className="rounded-lg border border-border bg-muted/30 p-5">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Feeding Behavior
+                  </h3>
+                  <p className="text-sm text-foreground leading-relaxed">{feedingBehavior}</p>
+                </div>
+              ) : null}
+              {application ? (
+                <div className="rounded-lg border border-border bg-muted/30 p-5">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Application
+                  </h3>
+                  <p className="text-sm text-foreground leading-relaxed">{application}</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Product Images */}
       {galleryEntries.length > 0 ? (
         <section className="py-12 lg:py-16 bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">产品图片</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Product Images</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {galleryEntries.map((img, i) => (
                 <div className="aspect-square relative overflow-hidden rounded-lg border border-border bg-neutral-50">
@@ -232,15 +286,19 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
           <div className="max-w-3xl">
             <VideoDemo
-              title={`${data.title} for Industrial Components`}
+              title={videoRef?.title ?? `${data.title} for Industrial Components`}
               description={
-                (data.excerpt as string) ||
+                (videoRef?.description as string) ??
+                (data.excerpt as string) ??
                 `This demonstration shows the ${data.title} handling typical industrial parts.`
               }
-              partType="Metal fasteners, plastic components"
-              feedingBehavior="Continuous orientation"
-              applicationContext="Assembly line integration"
+              partType={partType}
+              feedingBehavior={feedingBehavior}
+              applicationContext={application}
               thumbnailPath="/placeholder.svg"
+              videoId={videoId}
+              videoSource={videoRef?.source === 'vimeo' ? 'vimeo' : 'youtube'}
+              videoUrl={videoUrl}
             />
           </div>
         </div>

@@ -72,7 +72,7 @@ export const productsByCategorySlugQuery = groq`
   }
 `;
 
-// 按 category slug + product slug 取单品详情；画廊仅用主图 + 产品图集（不用图库）
+// 按 category slug + product slug 取单品详情；画廊仅用主图 + 产品图集；视频支持本地上传或 YouTube/Vimeo
 export const productBySlugsQuery = groq`
   *[_type == "product" && slug.current == $product && category->slug.current == $category][0]{
     _id,
@@ -81,10 +81,21 @@ export const productBySlugsQuery = groq`
     "mainImage": heroImage,
     "gallery": galleryImages,
     "body": content,
+    applications { partType, feedingBehavior, application },
     specs,
     "category": category->{
       title,
       "slug": slug.current
+    },
+    "video": video->{
+      _id,
+      title,
+      source,
+      "videoId": videoId,
+      "url": url,
+      "videoFileUrl": videoFile.asset->url,
+      coverImage,
+      description
     }
   }
 `;

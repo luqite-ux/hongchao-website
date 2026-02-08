@@ -10,7 +10,12 @@ interface VideoDemoProps {
   feedingBehavior?: string
   applicationContext?: string
   thumbnailPath?: string
+  /** YouTube 或 Vimeo 的视频 ID（用于嵌入） */
   videoId?: string
+  /** 来源：youtube | vimeo，用于选择嵌入方式 */
+  videoSource?: 'youtube' | 'vimeo'
+  /** 直接视频地址（本地上传或 URL 来源），用 HTML5 video 播放 */
+  videoUrl?: string
 }
 
 export function VideoDemo({
@@ -21,16 +26,34 @@ export function VideoDemo({
   applicationContext,
   thumbnailPath = "/images/video-placeholder.jpg",
   videoId,
+  videoSource = 'youtube',
+  videoUrl,
 }: VideoDemoProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+  const hasVideo = Boolean(videoId || videoUrl)
+  const embedSrc =
+    videoSource === 'vimeo' && videoId
+      ? `https://player.vimeo.com/video/${videoId}?autoplay=1`
+      : videoId
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`
+        : null
 
   return (
     <div className="border border-[#E5E5E5] bg-white">
       {/* Video Container */}
       <div className="aspect-video bg-[#1F1F1F] relative overflow-hidden">
-        {isPlaying && videoId ? (
+        {isPlaying && videoUrl ? (
+          <video
+            src={videoUrl}
+            title={title}
+            controls
+            autoPlay
+            playsInline
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+        ) : isPlaying && embedSrc ? (
           <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`}
+            src={embedSrc}
             title={title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
