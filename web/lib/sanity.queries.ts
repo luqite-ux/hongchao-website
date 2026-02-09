@@ -94,6 +94,7 @@ export const productBySlugsQuery = groq`
       "videoId": videoId,
       "url": url,
       "videoFileUrl": videoFile.asset->url,
+      "videoFileAsset": videoFile.asset->{ url },
       coverImage,
       description
     }

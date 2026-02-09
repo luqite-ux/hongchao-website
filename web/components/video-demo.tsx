@@ -73,9 +73,9 @@ export function VideoDemo({
               <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
             </div>
             
-            {/* Sample Label */}
+            {/* Label: 有视频时提示点击播放，无视频时显示占位文案 */}
             <p className="relative z-10 mt-4 text-xs text-white/40 uppercase tracking-wider">
-              Sample Demonstration Video
+              {hasVideo ? "Click to play" : "Sample Demonstration Video"}
             </p>
           </button>
         )}

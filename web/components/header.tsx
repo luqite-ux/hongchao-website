@@ -153,7 +153,8 @@ export function Header({
                     <NavigationMenuLink
                       asChild
                       className={cn(
-                        "group inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors hover:text-primary focus:text-primary focus:outline-none"
+                        "group inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors",
+                        "hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground focus-visible:text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       )}
                     >
                       <Link href={item.href}>{item.name}</Link>

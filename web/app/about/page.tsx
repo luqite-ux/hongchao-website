@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowRight, Factory, Award, Globe, Target, Eye, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CertificationCard } from "@/components/certification-card"
 import { fetchSiteSettings } from "@/lib/site-settings"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,9 +17,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const DEFAULT_COMPANY = "HONGCHAO"
-const milestones = [
-  { year: "2005", event: "Company founded in Suzhou, China" },
-  { year: "Present", event: "16 patents accepted (8 invention + 8 utility model)" },
+
+const qualityCertifications = [
+  {
+    title: "Quality Management System Certificate",
+    issuer: "YAB (扬标认证)",
+    standard: "GB/T19001-2016 / ISO 9001:2015",
+    scope: "Production of vibratory bowl feeder",
+    validUntil: "2027-01-30",
+    image: "/images/about/cert-iso9001.png",
+  },
+  {
+    title: "Machinery Directive Attestation of Conformity",
+    issuer: "UDEM International Certification",
+    standard: "2006/42/EC Machinery Directive / Annex VIII",
+    scope: "EN ISO 12100:2010; EN 60204-1:2018 · Vibration bowl feeder (HC series)",
+    validUntil: "2028-11-13",
+    image: "/images/about/cert-machinery.png",
+  },
+  {
+    title: "计算机软件著作权登记证书",
+    issuer: "国家版权局",
+    standard: "宏超智能供料控制系统软件 V1.0",
+    scope: "软著登字第14952119号 · 全部权利",
+    validUntil: "2025-02-20",
+    image: "/images/about/cert-software.png",
+  },
 ]
 
 const values = [
@@ -42,10 +66,6 @@ const values = [
     title: "Global Partnership",
     description: "We build long-term relationships with customers through responsive support worldwide.",
   },
-]
-
-const certifications = [
-  "16 Patents (8 Invention + 8 Utility Model)",
 ]
 
 export default async function AboutPage() {
@@ -191,33 +211,21 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Timeline */}
+      {/* Quality Certifications */}
       <section className="py-20 lg:py-28 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="max-w-3xl mb-12">
             <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-              Our Journey
+              Quality Certifications
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Key milestones in {companyName}&apos;s growth story.
+              Meeting global standards for quality and compliance.
             </p>
           </div>
-          <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-border hidden md:block" />
-            <div className="space-y-8">
-              {milestones.map((milestone, index) => (
-                <div key={milestone.year} className={`flex items-center gap-8 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                  <div className={`flex-1 ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-                    <div className="bg-secondary p-6 rounded-lg inline-block">
-                      <p className="text-2xl font-bold text-primary">{milestone.year}</p>
-                      <p className="text-muted-foreground mt-1">{milestone.event}</p>
-                    </div>
-                  </div>
-                  <div className="hidden md:flex h-4 w-4 rounded-full bg-primary flex-shrink-0 relative z-10" />
-                  <div className="flex-1 hidden md:block" />
-                </div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {qualityCertifications.map((cert) => (
+              <CertificationCard key={cert.title} cert={cert} />
+            ))}
           </div>
         </div>
       </section>
@@ -263,25 +271,6 @@ export default async function AboutPage() {
                 preload="metadata"
                 className="h-full w-full object-cover rounded-xl"
               />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Certifications */}
-      <section className="py-16 bg-secondary">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div>
-              <h3 className="text-xl font-bold text-foreground">Quality Certifications</h3>
-              <p className="text-muted-foreground mt-1">Meeting global standards for quality and compliance.</p>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {certifications.map((cert) => (
-                <div key={cert} className="px-6 py-3 bg-background rounded-lg border border-border">
-                  <span className="font-medium text-foreground">{cert}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>

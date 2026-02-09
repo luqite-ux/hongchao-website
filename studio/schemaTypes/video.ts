@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { VideoFilePreview } from '../components/VideoFilePreview'
 
 export const video = defineType({
   name: 'video',
@@ -37,9 +38,12 @@ export const video = defineType({
       name: 'videoFile',
       title: '视频文件',
       type: 'file',
-      description: '直接上传 MP4、WebM 等视频文件',
+      description: '直接上传 MP4、WebM 等视频文件。上传后下方可预览播放。',
       options: {
         accept: 'video/*',
+      },
+      components: {
+        input: VideoFilePreview,
       },
       hidden: ({ parent }) => parent?.source !== 'upload',
       validation: (rule) =>

@@ -76,12 +76,12 @@ export default async function ProductDetailPage({ params }: Props) {
     alt: `${data.title} view ${i + 1}`,
   }))
   const videoRef = data.video as
-    | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; title?: string; coverImage?: unknown; description?: string }
+    | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; videoFileAsset?: { url?: string }; title?: string; coverImage?: unknown; description?: string }
     | null
     | undefined
   const videoUrl =
-    videoRef?.source === 'upload' && videoRef?.videoFileUrl
-      ? videoRef.videoFileUrl
+    videoRef?.source === 'upload'
+      ? (videoRef.videoFileUrl ?? videoRef.videoFileAsset?.url)
       : videoRef?.source === 'url' && videoRef?.url
         ? videoRef.url
         : undefined
