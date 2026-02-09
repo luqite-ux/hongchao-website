@@ -295,8 +295,14 @@ export default async function TechnologyPage() {
                 </div>
               </div>
             </div>
-            <div className="aspect-square bg-background/10 rounded-lg flex items-center justify-center">
-              <Lightbulb className="h-40 w-40 text-primary/30" />
+            <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-neutral-800 flex items-center justify-center">
+              <Image
+                src="/images/ai.png"
+                alt="Future technology illustration"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
           </div>
         </div>

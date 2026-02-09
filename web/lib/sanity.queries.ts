@@ -101,6 +101,20 @@ export const productBySlugsQuery = groq`
   }
 `;
 
+// 视频列表（/videos 页）：按标题排序，含本地上传/URL/YouTube/Vimeo 播放所需字段
+export const videosQuery = groq`
+  *[_type == "video"] | order(title asc) {
+    _id,
+    title,
+    description,
+    source,
+    "videoId": videoId,
+    "url": url,
+    "videoFileUrl": videoFile.asset->url,
+    coverImage
+  }
+`;
+
 // 专利列表：按 order 升序，_createdAt 降序兜底（含专利图片）
 export const patentsQuery = groq`
   *[_type == "patent"] | order(order asc, _createdAt desc) {

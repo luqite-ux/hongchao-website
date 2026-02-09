@@ -65,8 +65,14 @@ export function VideoDemo({
             className="absolute inset-0 w-full h-full flex flex-col items-center justify-center group cursor-pointer"
             aria-label={`Play ${title}`}
           >
-            {/* Placeholder Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1F1F1F]" />
+            {/* Placeholder Background: cover image from Studio or gradient */}
+            {thumbnailPath && thumbnailPath !== "/images/video-placeholder.jpg" ? (
+              <div className="absolute inset-0 bg-[#1F1F1F]">
+                <img src={thumbnailPath} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
+              </div>
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1F1F1F]" />
+            )}
             
             {/* Play Button */}
             <div className="relative z-10 w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-[#F6A12A] group-hover:border-[#F6A12A] transition-colors">

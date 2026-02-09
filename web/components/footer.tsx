@@ -163,8 +163,8 @@ export function Footer({ settings }: { settings: SiteSettings }) {
               &copy; {new Date().getFullYear()} {copyrightName}. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-background/60">
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+              <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>

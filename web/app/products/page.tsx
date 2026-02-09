@@ -18,6 +18,7 @@ type Category = {
   title: string
   slug: string | null
   description: string | null
+  image?: unknown
 }
 
 type Product = {
@@ -141,8 +142,18 @@ export default async function ProductsPage() {
               {categories.map((category, index) => (
                 <Card key={category._id} className="overflow-hidden border-border hover:border-primary/30 transition-colors">
                   <div className={`grid lg:grid-cols-2 ${index % 2 === 1 ? "lg:flex-row-reverse" : ""}`}>
-                    <div className={`aspect-[16/10] lg:aspect-auto bg-background flex items-center justify-center ${index % 2 === 1 ? "lg:order-2" : ""}`}>
-                      <Factory className="h-32 w-32 text-primary/30" />
+                    <div className={`aspect-[16/10] lg:aspect-auto bg-background flex items-center justify-center relative overflow-hidden ${index % 2 === 1 ? "lg:order-2" : ""}`}>
+                      {category.image ? (
+                        <Image
+                          src={urlForProductImage(category.image).width(1200).url()}
+                          alt={category.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <Factory className="h-32 w-32 text-primary/30" />
+                      )}
                     </div>
                     <div className={`p-8 lg:p-10 ${index % 2 === 1 ? "lg:order-1" : ""}`}>
                       <CardHeader className="p-0 mb-4">
