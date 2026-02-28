@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Clock, MessageSquare, Wrench, FileText, Globe } fr
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchSiteSettings } from "@/lib/site-settings"
+import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import { ContactForm } from "@/components/contact-form"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,8 +26,8 @@ export default async function ContactPage() {
   const settings = await fetchSiteSettings()
   const contact = settings?.contact
   const companyName = settings?.companyName || "HONGCHAO"
-  const email = contact?.email || ""
-  const phone = contact?.phone || ""
+  const email = CONTACT_EMAIL
+  const phone = CONTACT_PHONE_DISPLAY
   const address = contact?.address || ""
 
   const contactMethods = [

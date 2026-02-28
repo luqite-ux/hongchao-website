@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ContactSidebar } from "@/components/contact-sidebar";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { fetchNavCategories } from "@/lib/product-categories";
 import { urlForImage } from "@/lib/sanity.image";
@@ -43,6 +44,7 @@ export default async function RootLayout({
         <Header settings={settings} productCategories={productCategories} />
         <main>{children}</main>
         <Footer settings={settings} />
+        <ContactSidebar />
         <Toaster richColors position="top-center" />
         <Analytics />
       </body>

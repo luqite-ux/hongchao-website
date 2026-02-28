@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Phone } from "lucide-react"
+import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 
 export const metadata: Metadata = {
   title: "Terms of Service - Hongchao Automation Equipment",
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 }
 
 const COMPANY_NAME = "Hongchao Automation Equipment"
-const EMAIL = "info@hongchaoautomation.cn"
-const PHONE = "+86 131 8265 8718"
+const EMAIL = CONTACT_EMAIL
+const PHONE = CONTACT_PHONE_DISPLAY
 const EFFECTIVE_DATE = "January 1, 2026"
 
 const sections = [

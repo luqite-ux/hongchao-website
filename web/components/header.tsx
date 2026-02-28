@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { urlForImage } from "@/lib/sanity.image"
 import type { SiteSettings } from "@/lib/site-settings"
 import type { ProductCategory } from "@/lib/product-categories"
+import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -38,8 +39,8 @@ export function Header({
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false)
 
   const companyName = settings?.companyName ?? ""
-  const email = settings?.contact?.email
-  const phone = settings?.contact?.phone
+  const email = CONTACT_EMAIL
+  const phone = CONTACT_PHONE_DISPLAY
   const logoSrc = settings?.logo
     ? urlForImage(settings.logo).width(256).height(256).url()
     : "/logo.png"
@@ -51,18 +52,14 @@ export function Header({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-10 items-center justify-between text-sm">
             <div className="flex items-center gap-6">
-              {email && (
-                <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
-                  <Mail className="h-4 w-4" />
-                  {email}
-                </a>
-              )}
-              {phone && (
-                <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-2 hover:text-primary transition-colors">
-                  <Phone className="h-4 w-4" />
-                  {phone}
-                </a>
-              )}
+              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Mail className="h-4 w-4" />
+                {email}
+              </a>
+              <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Phone className="h-4 w-4" />
+                {phone}
+              </a>
             </div>
             <div className="flex items-center gap-4">
               <span>Since 2005 | 16 Patents | Global Service</span>

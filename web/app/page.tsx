@@ -92,10 +92,12 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
-                Precision{" "}
-                <span className="text-[#F6A12A]">Feeding</span>{" "}
-                <span className="text-[#F6A12A]">Systems</span> for Modern Manufacturing
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1] text-white">
+                <span className="text-white">Precision </span>
+                <span className="text-[#F6A12A]">Feeding</span>
+                <span className="text-white"> </span>
+                <span className="text-[#F6A12A]">Systems</span>
+                <span className="text-white"> for Modern Manufacturing</span>
               </h1>
               <p className="mt-6 text-lg text-white/60 leading-relaxed max-w-lg">
                 {HERO.subtitle}

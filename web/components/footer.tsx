@@ -4,6 +4,7 @@ import { Mail, Phone, MapPin, Linkedin, Youtube, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { urlForImage } from "@/lib/sanity.image"
 import type { SiteSettings } from "@/lib/site-settings"
+import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 
 const footerNavigation = {
   products: [
@@ -29,8 +30,8 @@ const DEFAULT_DESC = "Leading manufacturer of vibratory bowl feeders and custom 
 
 export function Footer({ settings }: { settings: SiteSettings }) {
   const companyName = settings?.companyName || "HONGCHAO"
-  const email = settings?.contact?.email
-  const phone = settings?.contact?.phone
+  const email = CONTACT_EMAIL
+  const phone = CONTACT_PHONE_DISPLAY
   const address = settings?.contact?.address
   const copyrightName = settings?.companyName || DEFAULT_COMPANY
   const footerLogoUrl = settings?.logo
