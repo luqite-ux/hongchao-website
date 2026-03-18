@@ -80,9 +80,14 @@ export const productBySlugsQuery = groq`
     "excerpt": summary,
     "mainImage": heroImage,
     "gallery": galleryImages,
+    "engineeringImage": engineeringImage,
     "body": content,
     applications { partType, feedingBehavior, application },
     specs,
+    "cases": cases[]{
+      industry,
+      image
+    },
     "category": category->{
       title,
       "slug": slug.current

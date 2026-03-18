@@ -1,48 +1,95 @@
 "use client"
 
 import Link from "next/link"
-import { Phone, Mail, MessageCircle } from "lucide-react"
-import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL, CONTACT_PHONE_TEL } from "@/lib/contact"
+import { Mail, MessageCircle, Phone, Send } from "lucide-react"
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_EMAIL,
+  CONTACT_PHONE_TEL,
+  CONTACT_WHATSAPP_URL,
+} from "@/lib/contact"
 
 /**
- * Right-side floating contact bar: narrow icon strip; content (phone, email, link) shows only on hover. English only.
+ * 右侧悬浮联系栏：白底 + 品牌橙、文字标签、悬停反色、默认气泡引导。工业品牌感。
  */
 export function ContactSidebar() {
   return (
     <aside
-      className="group fixed right-0 top-1/2 z-40 -translate-y-1/2 hidden xl:flex flex-col rounded-l-lg overflow-visible shadow-lg border border-r-0 border-white/10"
-      style={{ background: "rgba(31, 31, 31, 0.92)" }}
+      className="fixed right-4 top-40 z-40 hidden xl:flex flex-col rounded-2xl overflow-visible shadow-xl border border-slate-200/80 bg-white"
       aria-label="Contact us"
     >
-      {/* Hover panel: visible only when hovering the bar */}
-      <div className="absolute right-full top-0 mr-0 w-0 overflow-hidden opacity-0 group-hover:w-[180px] group-hover:opacity-100 group-hover:overflow-visible transition-all duration-200 ease-out">
-        <div className="w-[180px] py-3 px-3 rounded-l-lg space-y-1.5 mr-1" style={{ background: "rgba(31, 31, 31, 0.98)" }}>
-          <p className="text-[10px] font-medium text-white/70 uppercase tracking-wider mb-2">Contact Us</p>
-          <a href={CONTACT_PHONE_TEL} className="flex items-center gap-2 py-1.5 px-2 rounded text-white hover:text-[#F6A12A] hover:bg-white/5 transition-colors" title="Call us">
-            <Phone className="h-3.5 w-3.5 shrink-0 text-[#F6A12A]" />
-            <span className="text-xs break-all">{CONTACT_PHONE_DISPLAY}</span>
-          </a>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-2 py-1.5 px-2 rounded text-white hover:text-[#F6A12A] hover:bg-white/5 transition-colors" title="Email us">
-            <Mail className="h-3.5 w-3.5 shrink-0 text-[#F6A12A]" />
-            <span className="text-xs break-all truncate max-w-[140px]">{CONTACT_EMAIL}</span>
-          </a>
-          <Link href="/contact" className="flex items-center gap-2 py-1.5 px-2 rounded text-white hover:text-[#F6A12A] hover:bg-white/5 transition-colors" title="Online inquiry">
-            <MessageCircle className="h-3.5 w-3.5 shrink-0 text-[#F6A12A]" />
-            <span className="text-xs">Online inquiry</span>
-          </Link>
-        </div>
+      {/* 气泡：在悬浮栏上方，与栏体留出一点距离 */}
+      <div
+        className="absolute left-1/2 -top-5 -translate-x-1/2 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 whitespace-nowrap pointer-events-none shadow-sm"
+        style={{ background: "rgba(251, 160, 38, 0.12)" }}
+      >
+        Contact Us
       </div>
-      {/* Narrow icon strip (always visible) */}
-      <div className="flex flex-col w-11 py-2.5 gap-0.5">
-        <a href={CONTACT_PHONE_TEL} className="flex items-center justify-center py-2 text-white hover:text-[#F6A12A] transition-colors" title={CONTACT_PHONE_DISPLAY}>
-          <Phone className="h-4 w-4 shrink-0 text-[#F6A12A]" />
-        </a>
-        <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center justify-center py-2 text-white hover:text-[#F6A12A] transition-colors" title={CONTACT_EMAIL}>
-          <Mail className="h-4 w-4 shrink-0 text-[#F6A12A]" />
-        </a>
-        <Link href="/contact" className="flex items-center justify-center py-2 text-white hover:text-[#F6A12A] transition-colors" title="Online inquiry">
-          <MessageCircle className="h-4 w-4 shrink-0 text-[#F6A12A]" />
+
+      {/* 图标条：顶部留白，与气泡不粘在一起 */}
+      <div className="flex flex-col w-14 pt-4 pb-3 gap-0.5 px-1.5">
+        <Link
+          href="/contact"
+          className="group/item flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-transform duration-200 hover:scale-105 hover:bg-[#FBA026]"
+          title="Request a Quote"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg">
+            <Send
+              className="h-5 w-5 shrink-0 text-[#FBA026] transition-colors duration-200 group-hover/item:text-white"
+              aria-hidden
+            />
+          </span>
+          <span className="text-[10px] text-slate-600 group-hover/item:text-white font-medium transition-colors duration-200">
+            Quote
+          </span>
         </Link>
+        <a
+          href={CONTACT_PHONE_TEL}
+          className="group/item flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-colors duration-200 hover:bg-[#FBA026]"
+          title={CONTACT_PHONE_DISPLAY}
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg">
+            <Phone
+              className="h-5 w-5 shrink-0 text-[#FBA026] transition-colors duration-200 group-hover/item:text-white"
+              aria-hidden
+            />
+          </span>
+          <span className="text-[10px] text-slate-600 group-hover/item:text-white font-medium transition-colors duration-200">
+            Call
+          </span>
+        </a>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="group/item flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-colors duration-200 hover:bg-[#FBA026]"
+          title={CONTACT_EMAIL}
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg">
+            <Mail
+              className="h-5 w-5 shrink-0 text-[#FBA026] transition-colors duration-200 group-hover/item:text-white"
+              aria-hidden
+            />
+          </span>
+          <span className="text-[10px] text-slate-600 group-hover/item:text-white font-medium transition-colors duration-200">
+            Email
+          </span>
+        </a>
+        <a
+          href={CONTACT_WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group/item flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-colors duration-200 hover:bg-[#FBA026]"
+          title="WhatsApp"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg">
+            <MessageCircle
+              className="h-5 w-5 shrink-0 text-[#FBA026] transition-colors duration-200 group-hover/item:text-white"
+              aria-hidden
+            />
+          </span>
+          <span className="text-[10px] text-slate-600 group-hover/item:text-white font-medium transition-colors duration-200">
+            WhatsApp
+          </span>
+        </a>
       </div>
     </aside>
   )

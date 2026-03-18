@@ -18,7 +18,10 @@ import { urlForImage } from "@/lib/sanity.image"
 import type { SiteSettings } from "@/lib/site-settings"
 import type { ProductCategory } from "@/lib/product-categories"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
+import { HeaderSearch } from "@/components/header-search"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
+/** 导航：Catalog 已在首页产品区体现，不再单独栏目（按图1 v0） */
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products", isProducts: true },
@@ -46,23 +49,24 @@ export function Header({
     : "/logo.png"
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
-      {/* Top bar */}
-      <div className="hidden lg:block bg-foreground text-background">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200">
+      {/* Top bar - v0 亮色（图1） */}
+      <div className="hidden lg:block bg-slate-50 border-b border-slate-200 text-slate-700">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-10 items-center justify-between text-sm">
             <div className="flex items-center gap-6">
-              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-[#FBA026] transition-colors">
                 <Mail className="h-4 w-4" />
                 {email}
               </a>
-              <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+              <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-2 hover:text-[#FBA026] transition-colors">
                 <Phone className="h-4 w-4" />
                 {phone}
               </a>
             </div>
-            <div className="flex items-center gap-4">
-              <span>Since 2005 | 16 Patents | Global Service</span>
+            <div className="flex items-center gap-4 text-slate-500 items-center">
+              <span className="text-sm">Since 2005 | 11 Patents | Global Service</span>
+              <LanguageSwitcher className="text-slate-500 text-xs" size="sm" />
             </div>
           </div>
         </div>
@@ -83,10 +87,10 @@ export function Header({
               />
             </div>
             <div className="hidden sm:flex flex-col justify-center">
-              <span className="text-lg font-bold text-[#1F1F1F] tracking-tight leading-tight">
+              <span className="text-lg font-bold text-slate-800 tracking-tight leading-tight">
                 {companyName}
               </span>
-              <span className="text-[10px] text-[#6B6B6B] uppercase tracking-wider mt-0.5">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">
                 Automation Equipment
               </span>
             </div>
@@ -110,7 +114,7 @@ export function Header({
                 ) : item.isProducts ? (
                   <NavigationMenuItem key={item.name}>
                     <NavigationMenuTrigger
-                      className="bg-transparent text-foreground hover:text-primary data-[state=open]:text-primary"
+                      className="bg-transparent text-slate-800 hover:text-[#FBA026] data-[state=open]:text-[#FBA026]"
                     >
                       Products
                     </NavigationMenuTrigger>
@@ -150,8 +154,8 @@ export function Header({
                     <NavigationMenuLink
                       asChild
                       className={cn(
-                        "group inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors",
-                        "hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground focus-visible:text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        "group inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-semibold transition-colors",
+                        "hover:bg-[#F6A12A] hover:text-white focus:bg-[#F6A12A] focus:text-white focus-visible:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F6A12A] focus-visible:ring-offset-2"
                       )}
                     >
                       <Link href={item.href}>{item.name}</Link>
@@ -162,9 +166,14 @@ export function Header({
             </NavigationMenuList>
           </NavigationMenu>
 
-          {/* CTA Button */}
-          <div className="hidden lg:flex items-center gap-6">
-            <Button asChild size="lg" className="bg-[#F6A12A] hover:bg-[#D4871F] text-white font-semibold rounded-none h-11 px-6">
+          {/* Search + CTA（阶段五：搜索框更醒目） */}
+          <div className="hidden lg:flex items-center gap-4">
+            <HeaderSearch />
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold rounded-lg h-11 px-6 transition-transform duration-200 hover:scale-105"
+            >
               <Link href="/contact">Request a Quote</Link>
             </Button>
           </div>
@@ -239,7 +248,11 @@ export function Header({
                 </Link>
               )
             )}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-slate-600">Language</span>
+                <LanguageSwitcher className="flex-1 text-slate-600 border-slate-200" />
+              </div>
               <Button asChild className="w-full bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold">
                 <Link href="/contact">Request a Quote</Link>
               </Button>

@@ -37,6 +37,13 @@ export const product = defineType({
       of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
     }),
     defineField({
+      name: 'engineeringImage',
+      title: '结构图 / 剖面图（3D 渲染）',
+      type: 'image',
+      options: { hotspot: true },
+      description: '用于产品详情页 Engineering & Structure 栏，仅展示一张大图',
+    }),
+    defineField({
       name: 'summary',
       title: '摘要',
       type: 'text',
@@ -99,6 +106,40 @@ export const product = defineType({
       type: 'reference',
       to: [{ type: 'video' }],
       description: '可选。关联一个视频文档（可本地上传或填 YouTube/Vimeo ID）',
+    }),
+    defineField({
+      name: 'cases',
+      title: '应用案例（照片）',
+      type: 'array',
+      description: '用于产品详情页“应用案例”滑动展示（建议 3–5 张）',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'image',
+              title: '照片',
+              type: 'image',
+              options: { hotspot: true },
+            }),
+            defineField({
+              name: 'industry',
+              title: '行业',
+              type: 'string',
+              description: '例如：Automotive / Medical / Electronics',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'industry',
+              media: 'image',
+            },
+            prepare({ title, media }: { title?: string; media?: any }) {
+              return { title: title || 'Case', media: media as any }
+            },
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'faq',

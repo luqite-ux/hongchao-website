@@ -1,23 +1,28 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { notFound } from "next/navigation"
 import { ArrowRight, ArrowLeft, Phone, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
-import { PortableTextFallback } from "@/lib/portable-text"
-import { VideoDemo } from "@/components/video-demo"
-import { ProductGalleryClient } from "@/components/product-gallery-client"
+import { ProductHeroMedia } from "@/components/product-hero-media"
 
 type Props = {
   params: Promise<{ category: string; product: string }>
 }
 
+async function safeSanityFetch<T>(query: string, params: Record<string, unknown>) {
+  try {
+    return await sanityClient.fetch<T>(query, params)
+  } catch {
+    return null
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, product } = await params
-  const data = await sanityClient.fetch(productBySlugsQuery, { category, product })
+  const data = await safeSanityFetch<{ title?: string; excerpt?: string }>(productBySlugsQuery, { category, product })
 
   if (!data) {
     return { title: "Product Not Found" }
@@ -30,23 +35,92 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const products = await sanityClient.fetch(productsQuery)
-  return (products ?? []).map((p: { category?: { slug?: string }; slug?: string }) => ({
-    category: p.category?.slug ?? "",
-    product: p.slug ?? "",
-  })).filter((x: { category: string; product: string }) => x.category && x.product)
+  const products = (await safeSanityFetch<any[]>(productsQuery, {})) ?? []
+  return products
+    .map((p) => ({
+      category: p?.category?.slug ?? "",
+      product: p?.slug ?? "",
+    }))
+    .filter((x) => x.category && x.product)
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { category, product } = await params
 
-  const data = await sanityClient.fetch(productBySlugsQuery, { category, product })
-
+  const data = await safeSanityFetch<any>(productBySlugsQuery, { category, product })
   if (!data) {
-    notFound()
+    // Sanity 网络不可用时，避免整页 500，提供可预览的占位 UI
+    const fallbackTitle = product
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ")
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <section className="relative py-12 md:py-20 overflow-hidden bg-gradient-to-br from-white to-slate-50">
+          <div
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, #475569 1px, transparent 1px),
+                linear-gradient(to bottom, #475569 1px, transparent 1px)
+              `,
+              backgroundSize: "64px 64px",
+            }}
+          />
+          <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center gap-2 text-sm text-slate-400 mb-4">
+              <Link href="/products" className="hover:text-[#FBA026] transition-colors">
+                Products
+              </Link>
+              <span aria-hidden>/</span>
+              <Link href={`/products/${category}`} className="hover:text-[#FBA026] transition-colors">
+                {category}
+              </Link>
+              <span aria-hidden>/</span>
+              <span className="text-slate-500">{fallbackTitle}</span>
+            </nav>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              <div className="order-2 lg:order-1">
+                <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+                  {fallbackTitle}
+                </h1>
+                <p className="mt-5 text-lg text-slate-600 leading-relaxed max-w-xl">
+                  内容暂时不可用：当前环境无法连接 Sanity API（请检查网络/代理设置后刷新）。
+                </p>
+                <div className="mt-10">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold transition-transform duration-200 hover:scale-105"
+                  >
+                    <Link href="/contact">
+                      Request a Quote
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="order-1 lg:order-2 relative">
+                <div className="relative">
+                  <div className="absolute -inset-4 rounded-[2rem] bg-slate-100/70 shadow-xl" aria-hidden />
+                  <div className="relative drop-shadow-2xl rounded-2xl overflow-hidden bg-white/90 p-10 flex items-center justify-center">
+                    <div className="text-center text-slate-500">
+                      <div className="text-sm font-medium">Sanity fetch failed</div>
+                      <div className="mt-1 text-xs">Check proxy/network and refresh.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
   }
 
-  const related = await sanityClient.fetch(relatedProductsQuery, {
+  const related = await safeSanityFetch<any[]>(relatedProductsQuery, {
     category,
     excludeId: data._id,
   })
@@ -61,13 +135,6 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const gallery = (data.gallery ?? []) as { _type?: string; asset?: unknown }[]
   const specsList = (data.specs ?? []) as { label?: string; value?: string }[]
-  const applications = data?.applications as
-    | { partType?: string; feedingBehavior?: string; application?: string }
-    | undefined
-  const partType = applications?.partType?.trim()
-  const feedingBehavior = applications?.feedingBehavior?.trim()
-  const application = applications?.application?.trim()
-  const hasApplications = Boolean(partType || feedingBehavior || application)
   const mainImageEntry = data.mainImage
     ? { url: urlForProductImage(data.mainImage).width(1200).url(), alt: data.title }
     : { url: "/placeholder.svg", alt: data.title }
@@ -75,6 +142,9 @@ export default async function ProductDetailPage({ params }: Props) {
     url: urlForProductImage(img).width(1200).url(),
     alt: `${data.title} view ${i + 1}`,
   }))
+  const engineeringImageUrl = data.engineeringImage
+    ? urlForProductImage(data.engineeringImage).width(2000).url()
+    : mainImageEntry.url
   const videoRef = data.video as
     | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; videoFileAsset?: { url?: string }; title?: string; coverImage?: unknown; description?: string }
     | null
@@ -85,113 +155,171 @@ export default async function ProductDetailPage({ params }: Props) {
       : videoRef?.source === 'url' && videoRef?.url
         ? videoRef.url
         : undefined
-  const videoId = videoRef?.source === 'youtube' || videoRef?.source === 'vimeo' ? videoRef?.videoId : undefined
-  const hasVideo = Boolean(videoUrl || videoId)
+
+  const coverImageUrl = videoRef?.coverImage ? urlForProductImage(videoRef.coverImage).width(800).url() : undefined
+
+  const industrialTags = ["High Precision", "24/7 Reliability", "Fast Lead Time", "Customized Solutions"]
 
   return (
-    <div className="flex flex-col">
-      {/* Breadcrumb */}
-      <div className="bg-secondary border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/products" className="hover:text-primary transition-colors">
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* SECTION A: 视听 Hero (The Hook) */}
+      <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-white to-slate-50">
+        {/* 工业几何网格背景（最底层 z-0） */}
+        <div
+          className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #475569 1px, transparent 1px),
+              linear-gradient(to bottom, #475569 1px, transparent 1px)
+            `,
+            backgroundSize: "64px 64px",
+          }}
+        />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* 面包屑：最顶部，浅色 */}
+          <nav className="flex items-center gap-2 text-xs text-slate-400 mb-4">
+            <Link href="/products" className="hover:text-[#FBA026] transition-colors">
               Products
             </Link>
-            <span>/</span>
-            <Link href={`/products/${category}`} className="hover:text-primary transition-colors">
+            <span aria-hidden>/</span>
+            <Link href={`/products/${category}`} className="hover:text-[#FBA026] transition-colors">
               {categoryTitle}
             </Link>
-            <span>/</span>
-            <span className="text-foreground">{data.title}</span>
+            <span aria-hidden>/</span>
+            <span className="text-slate-500">{data.title ?? "Product"}</span>
           </nav>
-        </div>
-      </div>
 
-      {/* Product Header */}
-      <section className="py-12 lg:py-16 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href={`/products/${category}`}
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to {categoryTitle}
-          </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left: Text */}
+            <div className="order-2 lg:order-1">
+              <Link
+                href={`/products/${category}`}
+                className="inline-flex items-center text-xs text-slate-400 hover:text-[#FBA026] transition-colors mb-6"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to {categoryTitle}
+              </Link>
 
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-            {/* 仅主图，无缩略图，避免右侧大片空白 */}
-            <ProductGalleryClient images={[mainImageEntry]} productTitle={data.title} />
-
-            {/* Product Info */}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
-                {data.title}
+              <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+                {data.title ?? "Product"}
               </h1>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {industrialTags.map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-600 bg-white/80 backdrop-blur border border-slate-200 rounded-md"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+
               {(data.excerpt as string) ? (
-                <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+                <p className="mt-5 text-lg text-slate-600 leading-relaxed">
                   {data.excerpt}
                 </p>
               ) : null}
 
-              <div className="mt-10 space-y-4">
+              <div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3">
                 <Button
                   asChild
                   size="lg"
-                  className="w-full sm:w-auto bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold"
+                  className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold shadow-[0_4px_14px_0_rgba(251,160,38,0.35)] transition-transform duration-200 hover:scale-105"
                 >
                   <Link href="/contact">
                     Request a Quote
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="font-semibold bg-transparent"
-                  >
-                    <Link href="/contact#engineer">
-                      <Phone className="mr-2 h-5 w-5" />
-                      Talk to an Engineer
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="font-semibold bg-transparent"
-                  >
-                    <Link href="#catalog">
-                      <Download className="mr-2 h-5 w-5" />
-                      Download Datasheet
-                    </Link>
-                  </Button>
-                </div>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="font-semibold border-slate-200 text-slate-900 hover:bg-slate-50 transition-transform duration-200 hover:scale-105"
+                >
+                  <Link href="#specs">
+                    <Download className="mr-2 h-5 w-5" />
+                    Download Datasheet
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="font-semibold border-slate-200 text-slate-900 hover:bg-slate-50"
+                >
+                  <Link href="/contact#engineer">
+                    <Phone className="mr-2 h-5 w-5" />
+                    Talk to an Engineer
+                  </Link>
+                </Button>
               </div>
+            </div>
+
+            {/* Right: Auto-play Video + Thumbnails */}
+            <div className="order-1 lg:order-2">
+              <ProductHeroMedia
+                images={[mainImageEntry, ...galleryEntries]}
+                productTitle={data.title ?? "Product"}
+                videoUrl={videoUrl}
+                videoPosterUrl={coverImageUrl}
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Specifications */}
+      {/* SECTION B: Engineering & Structure (Technical Image Only) */}
+      <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative w-full">
+            <div className="relative w-full aspect-[16/9] rounded-2xl bg-slate-50 border border-slate-200 drop-shadow-2xl overflow-hidden">
+              <Image
+                src={engineeringImageUrl}
+                alt={`${data.title ?? "Product"} engineering structure`}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority={false}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION C: Full Specifications Table (Detailed Data) */}
       {specsList.length > 0 ? (
-        <section className="py-12 lg:py-16 bg-secondary">
+        <section id="specs" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Specifications</h2>
-            <div className="overflow-x-auto border border-border rounded-lg bg-background">
-              <table className="w-full text-left">
+            <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white">
+              <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-3 font-semibold text-foreground">Parameter</th>
-                    <th className="px-4 py-3 font-semibold text-foreground">Value</th>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-5 py-4 font-semibold text-slate-900">
+                      Parameter
+                    </th>
+                    <th className="px-5 py-4 font-semibold text-slate-900">
+                      Value
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {specsList.map((row, i) => (
-                    <tr key={i} className="border-b border-border last:border-0">
-                      <td className="px-4 py-3 text-muted-foreground">{row.label ?? "—"}</td>
-                      <td className="px-4 py-3 text-foreground">{row.value ?? "—"}</td>
+                    <tr
+                      key={`${row.label ?? "spec"}-${i}`}
+                      className={[
+                        "border-b border-slate-100 last:border-0",
+                        i % 2 === 0 ? "bg-white" : "bg-slate-50/60",
+                      ].join(" ")}
+                    >
+                      <td className="px-5 py-4 text-slate-600 whitespace-nowrap">
+                        {row.label ?? "—"}
+                      </td>
+                      <td className="px-5 py-4 text-slate-900">
+                        {row.value ?? "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -201,114 +329,11 @@ export default async function ProductDetailPage({ params }: Props) {
         </section>
       ) : null}
 
-      {/* Product Description (Portable Text) */}
-      {(data.body as unknown[])?.length > 0 ? (
-        <section className="py-12 lg:py-16 bg-secondary">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Description</h2>
-            <PortableTextFallback value={data.body} />
-          </div>
-        </section>
-      ) : null}
-
-      {/* Application / 使用场景：三列信息块，仅展示有内容的项 */}
-      {hasApplications ? (
-        <section className="py-12 lg:py-16 bg-background border-t border-border">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Application</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {partType ? (
-                <div className="rounded-lg border border-border bg-muted/30 p-5">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Part Type
-                  </h3>
-                  <p className="text-sm text-foreground leading-relaxed">{partType}</p>
-                </div>
-              ) : null}
-              {feedingBehavior ? (
-                <div className="rounded-lg border border-border bg-muted/30 p-5">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Feeding Behavior
-                  </h3>
-                  <p className="text-sm text-foreground leading-relaxed">{feedingBehavior}</p>
-                </div>
-              ) : null}
-              {application ? (
-                <div className="rounded-lg border border-border bg-muted/30 p-5">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Application
-                  </h3>
-                  <p className="text-sm text-foreground leading-relaxed">{application}</p>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* Product Images */}
-      {galleryEntries.length > 0 ? (
-        <section className="py-12 lg:py-16 bg-background">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Product Images</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {galleryEntries.map((img, i) => (
-                <div className="aspect-square relative overflow-hidden rounded-lg border border-border bg-neutral-50">
-                  <div className="absolute inset-3 flex items-center justify-center">
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={img.url}
-                        alt={img.alt}
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* Product Demonstration Video */}
-      <section className="py-16 lg:py-20 bg-white border-t border-[#E5E5E5]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <p className="text-[#F6A12A] font-medium text-xs uppercase tracking-[0.2em] mb-3">
-              Technical Reference
-            </p>
-            <h2 className="text-2xl font-bold text-[#1F1F1F]">Product Demonstration</h2>
-            <p className="mt-2 text-sm text-[#6B6B6B] max-w-2xl">
-              Watch how this product performs in real-world feeding applications.
-            </p>
-          </div>
-          <div className="max-w-3xl">
-            <VideoDemo
-              title={videoRef?.title ?? `${data.title} for Industrial Components`}
-              description={
-                (videoRef?.description as string) ??
-                (data.excerpt as string) ??
-                `This demonstration shows the ${data.title} handling typical industrial parts.`
-              }
-              partType={partType}
-              feedingBehavior={feedingBehavior}
-              applicationContext={application}
-              thumbnailPath="/placeholder.svg"
-              videoId={videoId}
-              videoSource={videoRef?.source === 'vimeo' ? 'vimeo' : 'youtube'}
-              videoUrl={videoUrl}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Related Products */}
+      {/* SECTION D: Recommended/Related Products (Keep as is) */}
       {relatedList.length > 0 ? (
-        <section className="py-16 lg:py-20 bg-[#FAFAFA] border-t border-[#E5E5E5]">
+        <section className="py-16 md:py-24 bg-white border-t border-slate-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-[#1F1F1F] mb-8">Related Products</h2>
+            <h2 className="text-2xl font-bold text-slate-800 mb-8">Related Products</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {relatedList.map(
                 (related: {
@@ -320,9 +345,9 @@ export default async function ProductDetailPage({ params }: Props) {
                   <Link
                     key={related._id}
                     href={`/products/${category}/${related.slug}`}
-                    className="group block border border-[#E5E5E5] bg-white hover:border-[#F6A12A]/30 transition-colors"
+                    className="group block border border-slate-200 bg-white hover:border-[#FBA026]/40 rounded-lg overflow-hidden transition-colors"
                   >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-neutral-50">
+                    <div className="aspect-[4/3] relative overflow-hidden bg-slate-50">
                       <div className="absolute inset-4 flex items-center justify-center">
                         <div className="relative w-full h-full">
                           <Image
@@ -340,10 +365,10 @@ export default async function ProductDetailPage({ params }: Props) {
                       </div>
                     </div>
                     <div className="p-5">
-                      <h3 className="font-semibold text-[#1F1F1F] group-hover:text-[#F6A12A] transition-colors">
+                      <h3 className="font-semibold text-slate-800 group-hover:text-[#FBA026] transition-colors">
                         {related.title}
                       </h3>
-                      <div className="mt-3 flex items-center text-xs font-medium text-[#6B6B6B] group-hover:text-[#F6A12A] transition-colors">
+                      <div className="mt-3 flex items-center text-xs font-medium text-slate-600 group-hover:text-[#FBA026] transition-colors">
                         View Details
                         <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -355,46 +380,6 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
         </section>
       ) : null}
-
-      {/* CTA Section */}
-      <section className="py-16 bg-foreground text-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-background">
-                Ready to Get Started?
-              </h2>
-              <p className="mt-4 text-background/80">
-                Contact our team to discuss your specific requirements. We will work with you to
-                configure the perfect solution for your application.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 lg:justify-end">
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold"
-              >
-                <Link href="/contact">
-                  Request a Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-background/30 text-background hover:bg-background/10 font-semibold bg-transparent"
-              >
-                <Link href="/contact#engineer">
-                  <Phone className="mr-2 h-5 w-5" />
-                  Talk to an Engineer
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
