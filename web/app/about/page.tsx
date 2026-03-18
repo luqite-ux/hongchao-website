@@ -91,10 +91,13 @@ export default async function AboutPage() {
                 Engineering Excellence Since 2005
               </h1>
               <p className="mt-6 text-lg text-slate-600 leading-relaxed">
-                {companyName} is a modern high-tech manufacturing 
-                enterprise specializing in the research, development, manufacturing, and sales of 
-                non-standard automatic feeding systems. With strong technical strength and continuous 
-                innovation, {companyName} has grown into a globally recognized manufacturer.
+                Suzhou Hongchao Automation Equipment Co., Ltd was founded in 2005. It’s located in Suzhou city Jiangsu province, China. Our range includes vibratory bowl feeder, Inline feeder, vibratory feeder controller, base units, belt elevator feeder, reciprocating stepped feeder, flexible feeder and more.
+              </p>
+              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+                Our bowls can be made of a range of materials, including stainless steel, aluminium, nylon, with different coatings, selected to suit the application. The bowl sizes range from 140mm diameter to 1200mm diameter. Vibratory bowl feeders can be tooled for the selection of specific components to ensure the feeder is built to your requirements.
+              </p>
+              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+                Vibratory bowl feeder are made to last and move your parts to their work station smoothly and efficiently. It is the most common part feeding devices used to feed components in industrial Assembly Automation Applications.
               </p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <Button asChild size="lg" className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold">
