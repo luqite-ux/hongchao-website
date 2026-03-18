@@ -37,3 +37,9 @@ Thumbs.db
 # TypeScript
 # =========================
 *.tsbuildinfo
+
+# =========================
+# Local references / drafts (do not commit)
+# =========================
+web/v0-ref/
+宏超修改/
