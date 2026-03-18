@@ -44,6 +44,20 @@ export const product = defineType({
       description: '用于产品详情页 Engineering & Structure 栏，仅展示一张大图',
     }),
     defineField({
+      name: 'technicalImages',
+      title: '技术结构图（3D 渲染/剖视图）',
+      type: 'array',
+      description: '用于产品详情页 Technical 3D Visualization 栏（可多张）',
+      of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
+    }),
+    defineField({
+      name: 'packagingImage',
+      title: 'Packaging & Delivery 流程示意图',
+      type: 'image',
+      options: { hotspot: true },
+      description: '用于产品详情页 Packaging & Delivery 栏（如无则前端显示占位图）',
+    }),
+    defineField({
       name: 'summary',
       title: '摘要',
       type: 'text',

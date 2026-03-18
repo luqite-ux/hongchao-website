@@ -1,7 +1,10 @@
 import Link from "next/link"
-import { Mail, Phone, MapPin, Linkedin, Youtube, Facebook, Twitter } from "lucide-react"
+import Image from "next/image"
+import type { ComponentType } from "react"
+import { Mail, Phone, MapPin, Linkedin, Youtube, Facebook, Instagram } from "lucide-react"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import type { SiteSettings } from "@/lib/site-settings"
+import { urlForImage } from "@/lib/sanity.image"
 
 /** 白底四列页脚，与 v0-ref 一致，不再重复 Engineers/Countries（由 AboutSection 统一展示） */
 const productLinks = [
@@ -14,33 +17,50 @@ const productLinks = [
 ]
 
 const companyLinks = [
-  { name: "About Us", href: "/about" },
-  { name: "Our Process", href: "/technology" },
-  { name: "Case Studies", href: "/catalog" },
-  { name: "News & Blog", href: "/about" },
-  { name: "Careers", href: "/contact" },
-  { name: "Contact", href: "/contact" },
+  { name: "Case Studies", href: "/case-studies" },
 ]
 
 const supportLinks = [
-  { name: "Technical Support", href: "/contact" },
-  { name: "Documentation", href: "/technology" },
-  { name: "FAQs", href: "/contact" },
-  { name: "Warranty", href: "/contact" },
-  { name: "Parts & Service", href: "/contact" },
+  { name: "Resources", href: "/resources" },
 ]
 
-const socialLinks = [
-  { name: "LinkedIn", href: process.env.NEXT_PUBLIC_LINKEDIN_URL || "#", icon: Linkedin },
-  { name: "YouTube", href: process.env.NEXT_PUBLIC_YOUTUBE_URL || "#", icon: Youtube },
-  { name: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL || "#", icon: Facebook },
-  { name: "Twitter", href: process.env.NEXT_PUBLIC_TWITTER_URL || "#", icon: Twitter },
-]
+function TikTokIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={props.className}>
+      <path d="M16.7 7.5c-.9-.6-1.6-1.5-1.8-2.6-.1-.3-.1-.7-.1-1h-2.7v12.1c0 1.2-1 2.2-2.2 2.2-1.2 0-2.2-1-2.2-2.2 0-1.2 1-2.2 2.2-2.2.2 0 .5 0 .7.1V11c-.2 0-.5-.1-.7-.1-2.7 0-4.9 2.2-4.9 4.9 0 2.7 2.2 4.9 4.9 4.9 2.7 0 4.9-2.2 4.9-4.9V9.3c1.2.9 2.7 1.4 4.2 1.4V8c-1.1 0-2.2-.3-3.1-1z" />
+    </svg>
+  )
+}
+
+function XIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={props.className}>
+      <path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.8-6.2L6.6 22H2l7.4-8.5L1 2h6.3l4.4 5.7L18.9 2zm-1.1 18h1.7L7.1 3.9H5.3L17.8 20z" />
+    </svg>
+  )
+}
 
 const DEFAULT_ADDRESS = "No. 168 Automation Road, Ningbo, Zhejiang, China 315000"
 
 export function Footer({ settings }: { settings?: SiteSettings | null }) {
   const address = settings?.contact?.address ?? DEFAULT_ADDRESS
+  const social = settings?.social
+  const socialLinks: Array<{
+    name: string
+    href?: string
+    icon: ComponentType<{ className?: string }>
+  }> = [
+    { name: "LinkedIn", href: social?.linkedin, icon: Linkedin },
+    { name: "TikTok", href: social?.tiktok, icon: TikTokIcon },
+    { name: "YouTube", href: social?.youtube, icon: Youtube },
+    { name: "Facebook", href: social?.facebook, icon: Facebook },
+    { name: "X", href: social?.twitter, icon: XIcon },
+    // 先固定展示：后续在 Sanity 增加字段后再接入
+    { name: "Instagram", href: undefined, icon: Instagram },
+  ]
+
+  const logoSource = settings?.logoSmall ?? settings?.logo
+  const logoUrl = logoSource ? urlForImage(logoSource).width(80).height(80).fit("max").auto("format").url() : ""
 
   return (
     <footer className="bg-white border-t border-slate-200" aria-labelledby="footer-heading">
@@ -53,9 +73,19 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
           {/* 公司信息 */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-[#FBA026] rounded-lg flex items-center justify-center shrink-0">
-                <span className="text-white font-bold text-xl">H</span>
-              </div>
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={settings?.companyName ? `${settings.companyName} logo` : "Hongchao logo"}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-lg object-contain bg-white shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-[#FBA026] rounded-lg flex items-center justify-center shrink-0">
+                  <span className="text-white font-bold text-xl">H</span>
+                </div>
+              )}
               <div>
                 <span className="text-xl font-bold text-slate-800 tracking-tight block leading-tight">HONGCHAO</span>
                 <span className="text-[10px] text-slate-500 tracking-[0.2em] uppercase">AUTOMATION</span>
@@ -82,18 +112,38 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
             </div>
 
             <div className="flex items-center gap-3 mt-6">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.name}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-[#FBA026] hover:text-white transition-colors"
-                  aria-label={s.name}
-                >
-                  <s.icon className="w-5 h-5" />
-                </a>
-              ))}
+              {socialLinks.map((s) => {
+                const href = typeof s.href === "string" ? s.href.trim() : ""
+                const enabled = href.length > 0
+
+                const cls =
+                  "w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-colors " +
+                  (enabled
+                    ? "text-slate-500 hover:bg-[#FBA026] hover:text-white"
+                    : "text-slate-300 cursor-not-allowed")
+
+                return enabled ? (
+                  <a
+                    key={s.name}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cls}
+                    aria-label={s.name}
+                  >
+                    <s.icon className="w-5 h-5" />
+                  </a>
+                ) : (
+                  <span
+                    key={s.name}
+                    className={cls}
+                    aria-label={s.name}
+                    title="链接待配置"
+                  >
+                    <s.icon className="w-5 h-5" />
+                  </span>
+                )
+              })}
             </div>
           </div>
 

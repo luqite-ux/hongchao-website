@@ -18,16 +18,7 @@ export function ContactSidebar() {
       className="fixed right-4 top-40 z-40 hidden xl:flex flex-col rounded-2xl overflow-visible shadow-xl border border-slate-200/80 bg-white"
       aria-label="Contact us"
     >
-      {/* 气泡：在悬浮栏上方，与栏体留出一点距离 */}
-      <div
-        className="absolute left-1/2 -top-5 -translate-x-1/2 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 whitespace-nowrap pointer-events-none shadow-sm"
-        style={{ background: "rgba(251, 160, 38, 0.12)" }}
-      >
-        Contact Us
-      </div>
-
-      {/* 图标条：顶部留白，与气泡不粘在一起 */}
-      <div className="flex flex-col w-14 pt-4 pb-3 gap-0.5 px-1.5">
+      <div className="flex flex-col w-14 py-3 gap-0.5 px-1.5">
         <Link
           href="/contact"
           className="group/item flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-transform duration-200 hover:scale-105 hover:bg-[#FBA026]"

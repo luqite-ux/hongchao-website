@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, FileText, Download, Video, BookOpen, Wrench } from "lucide-react"
+import { ArrowRight, FileText, Download, Video, BookOpen, Wrench, HelpCircle, Newspaper } from "lucide-react"
+import { sanityClient } from "@/lib/sanity.client"
+import { docPagesQuery, postsQuery } from "@/lib/sanity.queries"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,118 +12,61 @@ export const metadata: Metadata = {
   description: "Access HONGCHAO's library of technical resources including feeding system guides, product catalogs, white papers, and instructional videos.",
 }
 
-const featuredResources = [
-  {
-    type: "Guide",
-    icon: BookOpen,
-    title: "Complete Guide to Vibratory Bowl Feeder Selection",
-    description: "Learn how to choose the right bowl feeder for your application, including part analysis, feed rate calculation, and system sizing.",
-    slug: "vibratory-bowl-feeder-selection-guide",
-    readTime: "15 min read",
-  },
-  {
-    type: "White Paper",
-    icon: FileText,
-    title: "Flexible Feeding: The Future of Parts Handling",
-    description: "Explore how vision-guided flexible feeding systems are revolutionizing high-mix, low-volume manufacturing.",
-    slug: "flexible-feeding-white-paper",
-    readTime: "12 min read",
-  },
-  {
-    type: "Technical Article",
-    icon: Wrench,
-    title: "Optimizing Bowl Feeder Performance",
-    description: "Practical tips for tuning your vibratory bowl feeder to achieve maximum throughput and reliability.",
-    slug: "optimizing-bowl-feeder-performance",
-    readTime: "8 min read",
-  },
-]
+type DocPageListItem = {
+  _id: string
+  title?: string
+  slug?: string
+  category?: string
+  summary?: string
+  updatedAt?: string
+  fileUrl?: string
+}
 
-const articles = [
-  {
-    title: "Understanding Vibratory Feeder Frequency Control",
-    category: "Technical",
-    slug: "vibratory-feeder-frequency-control",
-    readTime: "6 min read",
-  },
-  {
-    title: "When to Choose Step Feeders Over Bowl Feeders",
-    category: "Guide",
-    slug: "step-feeders-vs-bowl-feeders",
-    readTime: "7 min read",
-  },
-  {
-    title: "Integrating Feeding Systems with Industrial Robots",
-    category: "Technical",
-    slug: "feeding-systems-robot-integration",
-    readTime: "10 min read",
-  },
-  {
-    title: "Maintaining Your Vibratory Bowl Feeder",
-    category: "Maintenance",
-    slug: "vibratory-bowl-feeder-maintenance",
-    readTime: "5 min read",
-  },
-  {
-    title: "FDA Compliance for Feeding Systems in Pharma",
-    category: "Industry",
-    slug: "fda-compliance-feeding-systems",
-    readTime: "8 min read",
-  },
-  {
-    title: "Calculating ROI for Automated Feeding Systems",
-    category: "Business",
-    slug: "feeding-system-roi-calculation",
-    readTime: "6 min read",
-  },
-]
+type PostListItem = {
+  _id: string
+  title?: string
+  slug?: string
+  excerpt?: string
+  publishedAt?: string
+}
 
-const downloads = [
-  {
-    title: "Product Catalog 2025",
-    description: "Complete catalog of HONGCHAO feeding systems and accessories",
-    type: "PDF",
-    size: "12.5 MB",
-  },
-  {
-    title: "Vibration Bowl Feeder Datasheet",
-    description: "Technical specifications for standard bowl feeder systems",
-    type: "PDF",
-    size: "2.3 MB",
-  },
-  {
-    title: "Flexible Feeder Datasheet",
-    description: "Technical specifications for FlexFeed platform systems",
-    type: "PDF",
-    size: "3.1 MB",
-  },
-  {
-    title: "Company Brochure",
-    description: "Overview of HONGCHAO capabilities and services",
-    type: "PDF",
-    size: "5.8 MB",
-  },
-]
+function iconByCategory(category?: string) {
+  switch (category) {
+    case "guide":
+      return BookOpen
+    case "whitepaper":
+      return FileText
+    case "download":
+      return Download
+    case "article":
+    default:
+      return Wrench
+  }
+}
 
-const videos = [
-  {
-    title: "Bowl Feeder Operation Overview",
-    duration: "4:32",
-    thumbnail: "bowl-feeder-video",
-  },
-  {
-    title: "Flexible Feeder Demo",
-    duration: "6:15",
-    thumbnail: "flexible-feeder-video",
-  },
-  {
-    title: "Factory Tour",
-    duration: "8:45",
-    thumbnail: "factory-tour-video",
-  },
-]
+function labelByCategory(category?: string) {
+  switch (category) {
+    case "guide":
+      return "Guide"
+    case "whitepaper":
+      return "White Paper"
+    case "download":
+      return "Download"
+    case "article":
+    default:
+      return "Technical Article"
+  }
+}
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  const [docs, posts] = await Promise.all([
+    sanityClient.fetch<DocPageListItem[]>(docPagesQuery, {}, { next: { revalidate: 60 } }),
+    sanityClient.fetch<PostListItem[]>(postsQuery, {}, { next: { revalidate: 60 } }),
+  ])
+
+  const featuredDocs = (docs || []).slice(0, 6)
+  const latestPosts = (posts || []).slice(0, 6)
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -145,117 +90,119 @@ export default function ResourcesPage() {
       {/* Featured Resources */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Featured Resources</h2>
-          <div className="grid lg:grid-cols-3 gap-8">
-            {featuredResources.map((resource) => (
-              <Card key={resource.slug} className="flex flex-col border-border hover:border-primary/30 hover:shadow-lg transition-all">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <resource.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <Badge variant="secondary">{resource.type}</Badge>
-                  </div>
-                  <CardTitle className="text-lg leading-tight">{resource.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <CardDescription className="mb-4">{resource.description}</CardDescription>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">{resource.readTime}</span>
-                    <Link
-                      href={`/resources/${resource.slug}`}
-                      className="inline-flex items-center text-sm font-medium text-primary hover:text-[#D4871F] transition-colors"
-                    >
-                      Read More
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex items-end justify-between gap-6 mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Featured Resources</h2>
+              <p className="text-sm text-muted-foreground mt-2">
+                内容来自 Sanity 的 `docPage`，用于维护技术文章、指南、白皮书与下载资料。
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button asChild variant="outline" size="sm" className="bg-transparent">
+                <Link href="/blog">
+                  <Newspaper className="h-4 w-4 mr-2" />
+                  Blog
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="bg-transparent">
+                <Link href="/faq">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  FAQs
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Articles List */}
-      <section className="py-16 lg:py-24 bg-secondary">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Technical Articles</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {articles.map((article) => (
-              <Card key={article.slug} className="border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <Badge variant="outline" className="mb-3">{article.category}</Badge>
-                      <h3 className="font-semibold text-foreground">{article.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-2">{article.readTime}</p>
-                    </div>
-                    <Link
-                      href={`/resources/${article.slug}`}
-                      className="inline-flex items-center text-sm font-medium text-primary hover:text-[#D4871F] transition-colors flex-shrink-0"
-                    >
-                      Read
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Downloads */}
-      <section className="py-16 lg:py-24 bg-background" id="catalog">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Downloads</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {downloads.map((download) => (
-              <Card key={download.title} className="border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Download className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="flex-grow">
-                      <h3 className="font-semibold text-foreground">{download.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{download.description}</p>
-                      <div className="flex items-center gap-4 mt-3">
-                        <Badge variant="secondary">{download.type}</Badge>
-                        <span className="text-sm text-muted-foreground">{download.size}</span>
+          {featuredDocs.length ? (
+            <div className="grid lg:grid-cols-3 gap-8">
+              {featuredDocs.map((d) => {
+                const Icon = iconByCategory(d.category)
+                const label = labelByCategory(d.category)
+                return (
+                  <Card key={d._id} className="flex flex-col border-border hover:border-primary/30 hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+                        <Badge variant="secondary">{label}</Badge>
                       </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="flex-shrink-0 bg-transparent">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      <CardTitle className="text-lg leading-tight">{d.title || "Untitled"}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <CardDescription className="mb-4 line-clamp-3">{d.summary || "—"}</CardDescription>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-sm text-muted-foreground">
+                          {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : ""}
+                        </span>
+                        <Link
+                          href={d.slug ? `/resources/${d.slug}` : "/resources"}
+                          className="inline-flex items-center text-sm font-medium text-primary hover:text-[#D4871F] transition-colors"
+                        >
+                          Read More
+                          <ArrowRight className="ml-1 h-4 w-4" />
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-16 border border-border rounded-lg bg-secondary/40">
+              <p className="text-foreground font-semibold">暂无资源内容</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                你可以在 Sanity Studio 中创建并发布 `docPage` 文档，这里会自动展示。
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Videos */}
+      {/* Latest Blog Posts */}
       <section className="py-16 lg:py-24 bg-secondary">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Video Library</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {videos.map((video) => (
-              <Card key={video.title} className="border-border hover:border-primary/30 transition-colors overflow-hidden">
-                <div className="aspect-video bg-foreground/5 flex items-center justify-center relative">
-                  <Video className="h-12 w-12 text-primary/30" />
-                  <div className="absolute bottom-2 right-2 bg-foreground/80 text-background text-xs px-2 py-1 rounded">
-                    {video.duration}
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground">{video.title}</h3>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex items-end justify-between gap-6 mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Latest Blog Posts</h2>
+              <p className="text-sm text-muted-foreground mt-2">内容来自 Sanity 的 `post`。</p>
+            </div>
+            <Link href="/blog" className="text-sm font-medium text-primary hover:text-[#D4871F] transition-colors">
+              View all
+            </Link>
           </div>
+
+          {latestPosts.length ? (
+            <div className="grid md:grid-cols-2 gap-6">
+              {latestPosts.map((p) => (
+                <Card key={p._id} className="border-border hover:border-primary/30 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <Badge variant="outline" className="mb-3">Post</Badge>
+                        <h3 className="font-semibold text-foreground">{p.title || "Untitled"}</h3>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{p.excerpt || "—"}</p>
+                      </div>
+                      <Link
+                        href={p.slug ? `/blog/${p.slug}` : "/blog"}
+                        className="inline-flex items-center text-sm font-medium text-primary hover:text-[#D4871F] transition-colors flex-shrink-0"
+                      >
+                        Read
+                        <ArrowRight className="ml-1 h-4 w-4" />
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 border border-border rounded-lg bg-background">
+              <p className="text-foreground font-semibold">暂无 Blog 内容</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                你可以在 Sanity Studio 中创建并发布 `post` 文档。
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

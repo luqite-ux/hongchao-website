@@ -1,12 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, ArrowLeft, Phone, Download } from "lucide-react"
+import { ArrowRight, ArrowLeft, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
-import { ProductHeroMedia } from "@/components/product-hero-media"
 
 type Props = {
   params: Promise<{ category: string; product: string }>
@@ -142,9 +141,19 @@ export default async function ProductDetailPage({ params }: Props) {
     url: urlForProductImage(img).width(1200).url(),
     alt: `${data.title} view ${i + 1}`,
   }))
-  const engineeringImageUrl = data.engineeringImage
-    ? urlForProductImage(data.engineeringImage).width(2000).url()
-    : mainImageEntry.url
+
+  const technicalImages = (data.technicalImages ?? []) as { _type?: string; asset?: unknown }[]
+  const technicalImageEntries = technicalImages
+    .map((img, i) => ({
+      url: urlForProductImage(img).width(2200).url(),
+      alt: `${data.title} technical render ${i + 1}`,
+    }))
+    .filter((x) => x.url)
+
+  const packagingImageUrl = data.packagingImage
+    ? urlForProductImage(data.packagingImage).width(2200).url()
+    : undefined
+
   const videoRef = data.video as
     | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; videoFileAsset?: { url?: string }; title?: string; coverImage?: unknown; description?: string }
     | null
@@ -160,9 +169,11 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const industrialTags = ["High Precision", "24/7 Reliability", "Fast Lead Time", "Customized Solutions"]
 
+  const productGallery = [mainImageEntry, ...galleryEntries].filter((x) => x?.url).slice(0, 8)
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* SECTION A: 视听 Hero (The Hook) */}
+      {/* SECTION A: Hero (Left Text, Right Video Only) */}
       <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-white to-slate-50">
         {/* 工业几何网格背景（最底层 z-0） */}
         <div
@@ -244,52 +255,34 @@ export default async function ProductDetailPage({ params }: Props) {
                     Download Datasheet
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="font-semibold border-slate-200 text-slate-900 hover:bg-slate-50"
-                >
-                  <Link href="/contact#engineer">
-                    <Phone className="mr-2 h-5 w-5" />
-                    Talk to an Engineer
-                  </Link>
-                </Button>
               </div>
             </div>
 
-            {/* Right: Auto-play Video + Thumbnails */}
-            <div className="order-1 lg:order-2">
-              <ProductHeroMedia
-                images={[mainImageEntry, ...galleryEntries]}
-                productTitle={data.title ?? "Product"}
-                videoUrl={videoUrl}
-                videoPosterUrl={coverImageUrl}
-              />
-            </div>
+            {/* Right: Video only */}
+            {videoUrl ? (
+              <div className="order-1 lg:order-2">
+                <div className="rounded-2xl shadow-xl bg-white border border-slate-200 overflow-hidden">
+                  <div className="aspect-[4/3] bg-neutral-50 relative">
+                    <video
+                      className="absolute inset-0 w-full h-full object-contain"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls={false}
+                      poster={coverImageUrl}
+                    >
+                      <source src={videoUrl} />
+                    </video>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
 
-      {/* SECTION B: Engineering & Structure (Technical Image Only) */}
-      <section className="py-16 md:py-24 bg-white border-t border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative w-full">
-            <div className="relative w-full aspect-[16/9] rounded-2xl bg-slate-50 border border-slate-200 drop-shadow-2xl overflow-hidden">
-              <Image
-                src={engineeringImageUrl}
-                alt={`${data.title ?? "Product"} engineering structure`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                priority={false}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION C: Full Specifications Table (Detailed Data) */}
+      {/* SECTION D: Full Specifications (Data Table) */}
       {specsList.length > 0 ? (
         <section id="specs" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -329,7 +322,102 @@ export default async function ProductDetailPage({ params }: Props) {
         </section>
       ) : null}
 
-      {/* SECTION D: Recommended/Related Products (Keep as is) */}
+      {/* SECTION B: Product Gallery (Real Photos) */}
+      {productGallery.length > 0 ? (
+        <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-semibold text-slate-900 mb-8">
+              Product Gallery (Real Photos)
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {productGallery.slice(0, 8).map((img, i) => (
+                <div
+                  key={`${img.url}-${i}`}
+                  className="aspect-square relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50"
+                >
+                  <Image
+                    src={img.url}
+                    alt={img.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* SECTION C: Technical 3D Visualization (3D Renders) */}
+      <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold text-slate-900 mb-8">
+            Engineering &amp; 3D Structure
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {(technicalImageEntries.length > 0
+              ? technicalImageEntries.slice(0, 8)
+              : [{ url: "/placeholder.svg", alt: "3D Visualization Placeholder" }]
+            ).map((img, i) => (
+              <div
+                key={`${img.url}-${i}`}
+                className="aspect-square relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50"
+              >
+                <Image
+                  src={img.url}
+                  alt={img.alt}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION E: Packaging & Delivery (Process Illustration) */}
+      <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold text-slate-900 mb-8">
+            Packaging &amp; Delivery Process
+          </h2>
+          {packagingImageUrl ? (
+            <div className="relative w-full aspect-[16/9] rounded-2xl bg-slate-50 border border-slate-200 drop-shadow-2xl overflow-hidden">
+              <Image
+                src={packagingImageUrl}
+                alt="Packaging process"
+                fill
+                className="object-contain"
+                sizes="100vw"
+              />
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-10 md:p-14">
+              <div className="max-w-2xl">
+                <div className="mt-3 text-slate-600 leading-relaxed">
+                  Placeholder: add real packaging and delivery process illustration in Sanity to replace this block.
+                </div>
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    { t: "Protection", d: "Anti-vibration & anti-scratch packing" },
+                    { t: "Labeling", d: "Model / voltage / accessories checklist" },
+                    { t: "Shipment", d: "Crate & export-ready delivery" },
+                  ].map((x) => (
+                    <div key={x.t} className="rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="font-semibold text-slate-900 text-sm">{x.t}</div>
+                      <div className="mt-1 text-xs text-slate-500 leading-relaxed">{x.d}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* SECTION F: Footer Sections (As Is) */}
       {relatedList.length > 0 ? (
         <section className="py-16 md:py-24 bg-white border-t border-slate-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

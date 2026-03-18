@@ -4,11 +4,19 @@ export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0]{
     companyName,
     logo,
+    logoSmall,
     contact{
       phone,
       email,
       address,
       wechat
+    },
+    social{
+      linkedin,
+      tiktok,
+      youtube,
+      facebook,
+      twitter
     },
     defaultSeo{
       title,
@@ -81,6 +89,8 @@ export const productBySlugsQuery = groq`
     "mainImage": heroImage,
     "gallery": galleryImages,
     "engineeringImage": engineeringImage,
+    "technicalImages": technicalImages,
+    "packagingImage": packagingImage,
     "body": content,
     applications { partType, feedingBehavior, application },
     specs,
@@ -142,6 +152,85 @@ export const relatedProductsQuery = groq`
     "category": category->{
       title,
       "slug": slug.current
+    }
+  }
+`;
+
+// Resources（docPage）列表：按更新时间倒序
+export const docPagesQuery = groq`
+  *[_type == "docPage"] | order(updatedAt desc, _updatedAt desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    category,
+    summary,
+    updatedAt,
+    "fileUrl": file.asset->url
+  }
+`;
+
+export const docPageBySlugQuery = groq`
+  *[_type == "docPage" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    category,
+    summary,
+    updatedAt,
+    "fileUrl": file.asset->url,
+    content,
+    seo{
+      title,
+      description,
+      ogImage
+    }
+  }
+`;
+
+// Blog（post）列表：按发布时间倒序
+export const postsQuery = groq`
+  *[_type == "post"] | order(publishedAt desc, _createdAt desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    excerpt,
+    publishedAt,
+    coverImage
+  }
+`;
+
+export const postBySlugQuery = groq`
+  *[_type == "post" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    excerpt,
+    publishedAt,
+    coverImage,
+    content,
+    seo{
+      title,
+      description,
+      ogImage
+    }
+  }
+`;
+
+// FAQ：允许只维护一个页面（取第一条）
+export const faqPageQuery = groq`
+  *[_type == "faqPage"] | order(_updatedAt desc)[0]{
+    _id,
+    title,
+    "slug": slug.current,
+    items[]{
+      _key,
+      question,
+      answer
+    },
+    seo{
+      title,
+      description,
+      ogImage
     }
   }
 `;

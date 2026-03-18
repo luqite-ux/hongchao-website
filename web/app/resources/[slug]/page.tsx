@@ -1,6 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, ArrowLeft, Clock, Calendar, BookOpen, Share2 } from "lucide-react"
+import { ArrowRight, ArrowLeft, Clock, Calendar, BookOpen, Share2, Download } from "lucide-react"
+import { notFound } from "next/navigation"
+import { sanityClient } from "@/lib/sanity.client"
+import { docPageBySlugQuery } from "@/lib/sanity.queries"
+import { PortableTextFallback, getPortableTextBlockTexts } from "@/lib/portable-text"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,23 +15,27 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const title = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
+  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug }, { next: { revalidate: 60 } })
+
+  if (!doc) return { title: "Resource Not Found" }
+
+  const title = doc?.seo?.title || doc?.title || "Resources"
+  const description =
+    doc?.seo?.description ||
+    doc?.summary ||
+    getPortableTextBlockTexts(doc?.content).join(" ").slice(0, 160) ||
+    undefined
 
   return {
     title: `${title} - Resources`,
-    description: `Read our comprehensive guide on ${title.toLowerCase()}. Expert insights on feeding systems and automation.`,
+    description,
   }
 }
 
 export default async function ResourceDetailPage({ params }: Props) {
   const { slug } = await params
-  const title = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
+  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug }, { next: { revalidate: 60 } })
+  if (!doc) notFound()
 
   return (
     <div className="flex flex-col">
@@ -42,24 +50,38 @@ export default async function ResourceDetailPage({ params }: Props) {
             Back to Resources
           </Link>
           <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-4">Technical Guide</Badge>
+            <Badge variant="secondary" className="mb-4">
+              {doc?.category ? String(doc.category).toUpperCase() : "RESOURCE"}
+            </Badge>
             <h1 className="text-3xl font-bold text-foreground sm:text-4xl text-balance">
-              {title}
+              {doc?.title || "Untitled"}
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>15 min read</span>
+                <span>—</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>Updated January 2025</span>
+                <span>
+                  {doc?.updatedAt ? `Updated ${new Date(doc.updatedAt).toLocaleDateString()}` : "—"}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
-                <span>Technical Guide</span>
+                <span>{doc?.category ? String(doc.category) : "Resource"}</span>
               </div>
             </div>
+            {doc?.fileUrl ? (
+              <div className="mt-6">
+                <Button asChild variant="outline" className="bg-transparent">
+                  <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </a>
+                </Button>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -71,92 +93,12 @@ export default async function ResourceDetailPage({ params }: Props) {
             {/* Main Content */}
             <div className="lg:col-span-2">
               <article className="prose prose-lg max-w-none">
-                <p className="lead text-lg text-muted-foreground leading-relaxed">
-                  Selecting the right vibratory bowl feeder for your application requires careful 
-                  consideration of part characteristics, production requirements, and integration needs. 
-                  This comprehensive guide walks you through the key factors to ensure you make the 
-                  optimal choice.
-                </p>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Understanding Your Parts</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  The first step in selecting a bowl feeder is to thoroughly analyze the parts you 
-                  need to feed. Key characteristics to consider include size, weight, material, 
-                  surface finish, and geometric features that will affect orientation.
-                </p>
-                <ul className="space-y-2 my-4">
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Part dimensions:</strong> Length, width, height, and any critical features</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Weight:</strong> Affects bowl size and drive power requirements</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Material:</strong> Metal, plastic, glass, etc. affects tooling design</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Surface finish:</strong> Smooth, textured, oily, etc.</span>
-                  </li>
-                </ul>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Calculating Feed Rate Requirements</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Your required feed rate is typically determined by your downstream process - whether 
-                  that is a robot, assembly machine, or packaging line. Its important to consider not 
-                  just the average rate, but also peak requirements and buffer capacity.
-                </p>
-                <div className="bg-secondary p-6 rounded-lg my-6">
-                  <h4 className="font-semibold text-foreground mb-2">Feed Rate Formula</h4>
-                  <p className="text-muted-foreground">
-                    Required Feed Rate = (Downstream Cycle Time) × (Safety Factor) × (Reject Rate Allowance)
+                {doc?.summary ? (
+                  <p className="lead text-lg text-muted-foreground leading-relaxed">
+                    {doc.summary}
                   </p>
-                </div>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Selecting Bowl Size</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Bowl diameter is primarily determined by part size and required feed rate. Larger 
-                  bowls can hold more parts and achieve higher feed rates, but require more floor 
-                  space and power. Standard bowl sizes range from 150mm to 750mm in diameter.
-                </p>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Tooling Design Considerations</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Custom tooling is the heart of any bowl feeder system. The tooling design determines 
-                  how parts are oriented, selected, and delivered to the output. Key tooling elements include:
-                </p>
-                <ul className="space-y-2 my-4">
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Track profile:</strong> Shaped to match part geometry</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Orientation devices:</strong> Wiper blades, air jets, passive selectors</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span><strong className="text-foreground">Return paths:</strong> For rejected or misoriented parts</span>
-                  </li>
-                </ul>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Integration Requirements</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Consider how the bowl feeder will integrate with your existing automation systems. 
-                  This includes physical mounting, electrical connections, and communication protocols 
-                  for your PLC or robot controller.
-                </p>
-
-                <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Conclusion</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Selecting the right vibratory bowl feeder involves balancing multiple factors to 
-                  achieve optimal performance for your specific application. Working with an experienced 
-                  supplier like HONGCHAO ensures that all aspects are properly considered and that your 
-                  system delivers reliable, efficient operation.
-                </p>
+                ) : null}
+                <PortableTextFallback value={doc?.content} />
               </article>
 
               {/* Share */}

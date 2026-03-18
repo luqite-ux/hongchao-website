@@ -17,6 +17,13 @@ export const siteSettings = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'logoSmall',
+      title: '小 Logo（页脚/移动端用）',
+      type: 'image',
+      options: { hotspot: true },
+      description: '建议上传方形小尺寸 Logo，用于页脚或空间受限位置',
+    }),
+    defineField({
       name: 'contact',
       title: '联系方式',
       type: 'object',
@@ -25,6 +32,18 @@ export const siteSettings = defineType({
         defineField({ name: 'email', title: '邮箱', type: 'string' }),
         defineField({ name: 'address', title: '地址', type: 'string' }),
         defineField({ name: 'wechat', title: '微信', type: 'string' }),
+      ],
+    }),
+    defineField({
+      name: 'social',
+      title: '社交媒体链接',
+      type: 'object',
+      fields: [
+        defineField({ name: 'linkedin', title: 'LinkedIn', type: 'url' }),
+        defineField({ name: 'tiktok', title: 'TikTok', type: 'url' }),
+        defineField({ name: 'youtube', title: 'YouTube', type: 'url' }),
+        defineField({ name: 'facebook', title: 'Facebook', type: 'url' }),
+        defineField({ name: 'twitter', title: 'X / Twitter', type: 'url' }),
       ],
     }),
     defineField({
