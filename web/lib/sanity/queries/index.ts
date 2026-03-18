@@ -29,6 +29,12 @@ export const homepageQuery = groq`
         "slug": slug.current
       }
     },
-    stats[]{ value, label }
+    stats[]{ value, label },
+    trustSection{
+      "exhibitionImages": exhibitionImages[].asset->url,
+      "clientVisitImages": clientVisitImages[].asset->url,
+      inspectionText,
+      "inspectionImageUrl": inspectionImage.asset->url
+    }
   }
 `;

@@ -39,23 +39,23 @@ export default async function VideosPage() {
   return (
     <div className="flex flex-col">
       {/* Page Header */}
-      <section className="bg-[#1F1F1F] text-white py-16 lg:py-20">
+      <section className="bg-white border-b border-slate-200 py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="inline-flex items-center text-xs text-white/50 hover:text-[#F6A12A] transition-colors mb-8 uppercase tracking-wider"
+            className="inline-flex items-center text-xs text-slate-500 hover:text-[#FBA026] transition-colors mb-8 uppercase tracking-wider"
           >
             <ArrowLeft className="mr-2 h-3 w-3" />
             Home
           </Link>
           <div className="max-w-3xl">
-            <p className="text-[#F6A12A] font-medium text-xs uppercase tracking-[0.2em] mb-4">
+            <p className="text-[#FBA026] font-medium text-xs uppercase tracking-[0.2em] mb-4">
               Technical Library
             </p>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-slate-800">
               Product Demonstration Videos
             </h1>
-            <p className="mt-6 text-lg text-white/60 leading-relaxed">
+            <p className="mt-6 text-lg text-slate-600 leading-relaxed">
               Technical demonstrations of our feeding systems handling real industrial components.
               Each video shows actual part feeding behavior, orientation methods, and system performance.
             </p>

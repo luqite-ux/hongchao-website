@@ -9,6 +9,7 @@ export const homepage = defineType({
     { name: 'categories', title: '分类展示' },
     { name: 'products', title: '精选产品' },
     { name: 'stats', title: '数字统计' },
+    { name: 'trust', title: '信任模块（展会/来访/验货）' },
   ],
   fields: [
     defineField({
@@ -80,6 +81,41 @@ export const homepage = defineType({
             defineField({ name: 'value', title: '数值', type: 'string', validation: (r) => r.required() }),
             defineField({ name: 'label', title: '标签', type: 'string', validation: (r) => r.required() }),
           ],
+        }),
+      ],
+    }),
+    // Trust section: Exhibition / Client Visit / Customer Inspection
+    defineField({
+      name: 'trustSection',
+      title: '信任模块（展会/来访/验货）',
+      type: 'object',
+      group: 'trust',
+      fields: [
+        defineField({
+          name: 'exhibitionImages',
+          title: 'Exhibition 图片',
+          type: 'array',
+          of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
+          description: '展会现场图片列表（将按顺序展示）。',
+        }),
+        defineField({
+          name: 'clientVisitImages',
+          title: 'Client Visit 图片',
+          type: 'array',
+          of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
+          description: '客户来访/工厂参观图片列表。',
+        }),
+        defineField({
+          name: 'inspectionText',
+          title: 'Customer Inspection 说明文案',
+          type: 'text',
+          rows: 4,
+        }),
+        defineField({
+          name: 'inspectionImage',
+          title: 'Customer Inspection 图片',
+          type: 'image',
+          options: { hotspot: true },
         }),
       ],
     }),

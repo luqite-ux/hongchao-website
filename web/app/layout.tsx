@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ContactSidebar } from "@/components/contact-sidebar";
+import { BackToTop } from "@/components/back-to-top";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { fetchNavCategories } from "@/lib/product-categories";
 import { urlForImage } from "@/lib/sanity.image";
@@ -45,6 +46,7 @@ export default async function RootLayout({
         <main>{children}</main>
         <Footer settings={settings} />
         <ContactSidebar />
+        <BackToTop />
         <Toaster richColors position="top-center" />
         <Analytics />
       </body>

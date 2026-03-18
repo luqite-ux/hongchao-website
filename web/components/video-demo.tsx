@@ -41,7 +41,7 @@ export function VideoDemo({
   return (
     <div className="border border-[#E5E5E5] bg-white">
       {/* Video Container */}
-      <div className="aspect-video bg-[#1F1F1F] relative overflow-hidden">
+      <div className="aspect-video bg-slate-100 relative overflow-hidden">
         {isPlaying && videoUrl ? (
           <video
             src={videoUrl}
@@ -67,20 +67,20 @@ export function VideoDemo({
           >
             {/* Placeholder Background: cover image from Studio or gradient */}
             {thumbnailPath && thumbnailPath !== "/images/video-placeholder.jpg" ? (
-              <div className="absolute inset-0 bg-[#1F1F1F]">
-                <img src={thumbnailPath} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
+              <div className="absolute inset-0 bg-slate-200">
+                <img src={thumbnailPath} alt="" className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
               </div>
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1F1F1F]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
             )}
             
             {/* Play Button */}
-            <div className="relative z-10 w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-[#F6A12A] group-hover:border-[#F6A12A] transition-colors">
-              <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+            <div className="relative z-10 w-20 h-20 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center group-hover:bg-[#FBA026] group-hover:border-[#FBA026] shadow-md transition-colors">
+              <Play className="w-8 h-8 text-slate-700 group-hover:text-white ml-1" fill="currentColor" />
             </div>
             
             {/* Label: 有视频时提示点击播放，无视频时显示占位文案 */}
-            <p className="relative z-10 mt-4 text-xs text-white/40 uppercase tracking-wider">
+            <p className="relative z-10 mt-4 text-xs text-slate-500 uppercase tracking-wider">
               {hasVideo ? "Click to play" : "Sample Demonstration Video"}
             </p>
           </button>

@@ -1,9 +1,10 @@
 /**
  * 在 Node.js 运行时启动时配置 undici 代理，使 fetch 请求走 HTTP_PROXY/HTTPS_PROXY。
- * 通过 noProxy 显式排除 Sanity（.sanity.io），避免请求走代理导致 Connect Timeout。
+ * 可选通过 noProxy 排除 Sanity（.sanity.io）。某些网络环境直连 Sanity 会超时，需要让 Sanity 走代理。
  * 仅当设置了代理环境变量时生效；Edge 运行时跳过。
  */
-const SANITY_NO_PROXY = "localhost,127.0.0.1,::1,.sanity.io,*.sanity.io,api.sanity.io";
+const DEFAULT_NO_PROXY = "localhost,127.0.0.1,::1";
+const SANITY_NO_PROXY = ".sanity.io,*.sanity.io,api.sanity.io,*.api.sanity.io";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
@@ -12,7 +13,9 @@ export async function register() {
   if (!proxy) return;
 
   const existing = process.env.NO_PROXY || process.env.no_proxy || "";
-  const noProxy = existing ? `${existing},${SANITY_NO_PROXY}` : SANITY_NO_PROXY;
+  const bypassSanityProxy = (process.env.SANITY_BYPASS_PROXY ?? "").toLowerCase() === "1";
+  const baseNoProxy = existing || DEFAULT_NO_PROXY;
+  const noProxy = bypassSanityProxy ? `${baseNoProxy},${SANITY_NO_PROXY}` : baseNoProxy;
   process.env.NO_PROXY = process.env.no_proxy = noProxy;
 
   try {

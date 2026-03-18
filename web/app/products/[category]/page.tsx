@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { notFound } from "next/navigation"
 import { ArrowRight, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Breadcrumbs } from "@/components/breadcrumbs"
+import { TrustSection } from "@/components/trust-section"
+import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsByCategorySlugQuery, productCategoriesQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
@@ -15,9 +17,17 @@ type Props = {
   params: Promise<{ category: string }>
 }
 
+async function safeSanityFetch<T>(query: string, params: Record<string, unknown>) {
+  try {
+    return await sanityClient.fetch<T>(query, params, { next: { revalidate: 60 } })
+  } catch {
+    return null
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
-  const data = await sanityClient.fetch(productsByCategorySlugQuery, { category }, { next: { revalidate: 60 } })
+  const data = await safeSanityFetch<{ title?: string; description?: string }>(productsByCategorySlugQuery, { category })
 
   if (!data) {
     return { title: "Category Not Found" }
@@ -30,8 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const categories = await sanityClient.fetch(productCategoriesQuery)
-  return (categories ?? []).map((c: { slug?: string | null; _id: string }) => ({
+  const categories = (await safeSanityFetch<any[]>(productCategoriesQuery, {})) ?? []
+  return categories.map((c: { slug?: string | null; _id: string }) => ({
     category: c.slug ?? c._id,
   })).filter((x: { category: string }) => x.category)
 }
@@ -39,10 +49,48 @@ export async function generateStaticParams() {
 export default async function CategoryPage({ params }: Props) {
   const { category } = await params
 
-  const data = await sanityClient.fetch(productsByCategorySlugQuery, { category }, { next: { revalidate: 60 } })
-
+  const data = await safeSanityFetch<any>(productsByCategorySlugQuery, { category })
+  const categoryTitleFallback = category
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
   if (!data) {
-    notFound()
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: categoryTitleFallback }]} />
+        <section className="relative bg-slate-50 py-16 md:py-24 overflow-hidden">
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/products"
+              className="inline-flex items-center text-sm text-slate-500 hover:text-[#FBA026] transition-colors mb-6"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Products
+            </Link>
+            <div className="max-w-3xl">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-balance text-slate-900">
+                {categoryTitleFallback}
+              </h1>
+              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+                内容暂时不可用：当前环境无法连接 Sanity API（请检查网络/代理设置后刷新）。
+              </p>
+              <div className="mt-10">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold transition-transform duration-200 hover:scale-105"
+                >
+                  <Link href="/contact">
+                    Request a Quote
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
   }
 
   const products = (data.products ?? []) as {
@@ -60,34 +108,19 @@ export default async function CategoryPage({ params }: Props) {
 
   const categoryTitle =
     (data.title as string) ??
-    category
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ")
+    categoryTitleFallback
 
   return (
-    <div className="flex flex-col">
-      {/* Breadcrumb */}
-      <div className="bg-secondary border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/products" className="hover:text-primary transition-colors">
-              Products
-            </Link>
-            <span>/</span>
-            <span className="text-foreground">{categoryTitle}</span>
-          </nav>
-        </div>
-      </div>
-
+    <div className="flex flex-col min-h-screen bg-white">
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: categoryTitle }]} />
       {/* Hero */}
-      <section className="relative bg-foreground text-background py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+      <section className="relative bg-slate-50 py-16 md:py-24 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center p-4 opacity-20">
           <Image
             src={heroImageUrl}
             alt=""
             fill
-            className="object-contain opacity-30"
+            className="object-contain"
             sizes="100vw"
             priority
           />
@@ -95,17 +128,17 @@ export default async function CategoryPage({ params }: Props) {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/products"
-            className="inline-flex items-center text-sm text-background/80 hover:text-primary transition-colors mb-6"
+            className="inline-flex items-center text-sm text-slate-500 hover:text-[#FBA026] transition-colors mb-6"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Products
           </Link>
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-balance">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-balance text-slate-900">
               {categoryTitle}
             </h1>
             {(data.description as string) ? (
-              <p className="mt-6 text-lg text-background/80 leading-relaxed">
+              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
                 {data.description}
               </p>
             ) : null}
@@ -113,7 +146,7 @@ export default async function CategoryPage({ params }: Props) {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold"
+                className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold"
               >
                 <Link href="/contact">
                   Request a Quote
@@ -125,11 +158,11 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Product Grid */}
+      {/* Product Grid - 对齐首页 FeaturedProducts 卡片样式 */}
       {products.length > 0 ? (
-        <section className="py-16 lg:py-20 bg-background">
+        <section className="py-16 md:py-24 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-8">Products in this category</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8">Products in this category</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((p) => {
                 const hasSlug = p.slug != null && p.slug !== ""
@@ -139,48 +172,43 @@ export default async function CategoryPage({ params }: Props) {
                   <Link
                     key={p._id}
                     href={href}
-                    className={`group block border overflow-hidden transition-colors ${
+                    className={`group flex flex-col bg-white border rounded-xl overflow-hidden transition-all duration-300 ${
                       isPlaceholder
-                        ? "border-border bg-muted/50 cursor-not-allowed opacity-80 hover:opacity-90"
-                        : "border-border hover:border-primary/30"
+                        ? "border-slate-100 bg-slate-50/50 cursor-not-allowed opacity-80 hover:opacity-90"
+                        : "border-slate-100 hover:shadow-xl hover:border-[#FBA026]/30"
                     }`}
                   >
-                    <div className="aspect-[4/3] bg-neutral-50 relative overflow-hidden">
-                      <div className="absolute inset-4 flex items-center justify-center">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={
-                              p.mainImage
-                                ? urlForProductImage(p.mainImage).width(1200).url()
-                                : "/placeholder.svg"
-                            }
-                            alt={p.title}
-                            fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
+                    <div className="aspect-square bg-white relative overflow-hidden flex items-center justify-center p-4" style={{ boxShadow: "inset 0 -1px 0 0 #e2e8f0" }}>
+                      <div className="relative w-full h-full min-h-[160px]">
+                        <Image
+                          src={
+                            p.mainImage
+                              ? urlForProductImage(p.mainImage).width(1200).url()
+                              : "/placeholder.svg"
+                          }
+                          alt={p.title}
+                          fill
+                          className="object-contain group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
                       </div>
                     </div>
-                    <div className="p-5">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <div className="p-5 flex flex-col flex-1">
+                      <h3 className="font-bold text-slate-800 group-hover:text-[#FBA026] transition-colors text-sm leading-snug">
                         {p.title}
                       </h3>
                       {p.excerpt ? (
-                        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                        <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed flex-1">
                           {p.excerpt}
                         </p>
                       ) : null}
-                      <div className="mt-4 flex items-center text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                      <div className="mt-4 flex items-center gap-1.5 text-[#FBA026] text-xs font-semibold">
                         {isPlaceholder ? (
-                          <>
-                            Detail page unavailable
-                            <ArrowRight className="ml-1 h-3 w-3" />
-                          </>
+                          <>Detail page unavailable</>
                         ) : (
                           <>
-                            View Details
-                            <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                            <span>View Details</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
                       </div>
@@ -193,15 +221,19 @@ export default async function CategoryPage({ params }: Props) {
         </section>
       ) : null}
 
+      {/* Trust & Testimonials (按需挂载：产品分类页底部) */}
+      <TrustSection />
+      <TestimonialsSection />
+
       {/* CTA */}
-      <section className="py-16 bg-foreground text-background">
+      <section className="py-16 md:py-24 bg-slate-50 border-t border-slate-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-background">
+                <h2 className="text-3xl font-bold text-slate-900">
                 Ready to Get Started?
               </h2>
-              <p className="mt-4 text-background/80">
+              <p className="mt-4 text-slate-600">
                 Contact our team to discuss your specific requirements for {categoryTitle}.
               </p>
             </div>
@@ -209,7 +241,7 @@ export default async function CategoryPage({ params }: Props) {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold"
+                className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold"
               >
                 <Link href="/contact">
                   Request a Quote

@@ -3,37 +3,25 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-const inquiryTypes = [
-  { value: "quote", label: "Request a Quote" },
-  { value: "engineer", label: "Talk to an Engineer" },
-  { value: "support", label: "Technical Support" },
-  { value: "partnership", label: "Partnership Inquiry" },
-] as const;
 
+/** 阶段五：精简为 公司、姓名、电话、邮箱、简要需求 */
 export function ContactForm({ companyName }: { companyName: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const name = [
-      (form.querySelector("#firstName") as HTMLInputElement)?.value?.trim(),
-      (form.querySelector("#lastName") as HTMLInputElement)?.value?.trim(),
-    ]
-      .filter(Boolean)
-      .join(" ");
-    const email = (form.querySelector("#email") as HTMLInputElement)?.value?.trim() ?? "";
-    const phone = (form.querySelector("#phone") as HTMLInputElement)?.value?.trim() ?? "";
     const company = (form.querySelector("#company") as HTMLInputElement)?.value?.trim() ?? "";
+    const name = (form.querySelector("#name") as HTMLInputElement)?.value?.trim() ?? "";
+    const phone = (form.querySelector("#phone") as HTMLInputElement)?.value?.trim() ?? "";
+    const email = (form.querySelector("#email") as HTMLInputElement)?.value?.trim() ?? "";
     const message = (form.querySelector("#message") as HTMLInputElement)?.value?.trim() ?? "";
 
     if (!email || !message) {
-      toast.error("Please fill in email and message.");
+      toast.error("Please fill in email and brief requirements.");
       return;
     }
 
@@ -70,12 +58,12 @@ export function ContactForm({ companyName }: { companyName: string }) {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name *</Label>
-          <Input id="firstName" name="firstName" placeholder="John" required />
+          <Label htmlFor="company">Company *</Label>
+          <Input id="company" name="company" placeholder="Your Company Name" required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name *</Label>
-          <Input id="lastName" name="lastName" placeholder="Smith" required />
+          <Label htmlFor="name">Name *</Label>
+          <Input id="name" name="name" placeholder="Your Name" required />
         </div>
       </div>
 
@@ -86,69 +74,17 @@ export function ContactForm({ companyName }: { companyName: string }) {
         </div>
         <div className="space-y-2">
           <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" type="tel" placeholder="+1 (555) 000-0000" />
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="company">Company *</Label>
-          <Input id="company" name="company" placeholder="Your Company Name" required />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="country">Country *</Label>
-          <Input id="country" name="country" placeholder="United States" required />
+          <Input id="phone" name="phone" type="tel" placeholder="+86 138 0000 0000" />
         </div>
       </div>
 
       <div className="space-y-2" id="engineer">
-        <Label htmlFor="inquiryType">Inquiry Type *</Label>
-        <Select required>
-          <SelectTrigger>
-            <SelectValue placeholder="Select inquiry type" />
-          </SelectTrigger>
-          <SelectContent>
-            {inquiryTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="industry">Industry</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Select your industry" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="automotive">Automotive</SelectItem>
-            <SelectItem value="electronics">Electronics</SelectItem>
-            <SelectItem value="medical">Medical Devices</SelectItem>
-            <SelectItem value="pharmaceutical">Pharmaceutical</SelectItem>
-            <SelectItem value="consumer">Consumer Goods</SelectItem>
-            <SelectItem value="hardware">Hardware & Fasteners</SelectItem>
-            <SelectItem value="food">Food & Beverage</SelectItem>
-            <SelectItem value="aerospace">Aerospace</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="partDescription">Part Description</Label>
-        <Input id="partDescription" name="partDescription" placeholder="Describe the parts you need to feed" />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="message">Message *</Label>
+        <Label htmlFor="message">Brief Requirements *</Label>
         <Textarea
           id="message"
           name="message"
-          placeholder="Tell us about your project requirements, feed rate needs, and any special considerations..."
-          rows={5}
+          placeholder="e.g. Part type, feed rate, application (get quote / talk to engineer / support)"
+          rows={4}
           required
         />
       </div>
@@ -163,7 +99,7 @@ export function ContactForm({ companyName }: { companyName: string }) {
       <Button
         type="submit"
         size="lg"
-        className="w-full bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold"
+        className="w-full bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold rounded-none"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Sending..." : "Submit Inquiry"}
