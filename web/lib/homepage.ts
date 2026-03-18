@@ -1,6 +1,7 @@
 import type { SanityImageSource } from "@sanity/image-url";
 import { sanityClient } from "./sanity.client";
 import { homepageQuery } from "./sanity/queries";
+import type { Locale } from "@/lib/i18n";
 
 export interface TrustSectionData {
   exhibitionImages?: string[] | null;
@@ -27,9 +28,13 @@ export interface HomepageData {
   hero?: unknown;
 }
 
-export async function fetchHomepage(): Promise<HomepageData | null> {
+export async function fetchHomepage(locale: Locale = "en"): Promise<HomepageData | null> {
   try {
-    const data = await sanityClient.fetch<HomepageData | null>(homepageQuery, {}, { next: { revalidate: 60 } });
+    const data = await sanityClient.fetch<HomepageData | null>(
+      homepageQuery,
+      { locale },
+      { next: { revalidate: 60 } }
+    );
     return data;
   } catch {
     return null;

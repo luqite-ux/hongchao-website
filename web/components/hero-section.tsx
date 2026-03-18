@@ -2,13 +2,17 @@
 
 import { useEffect, useRef } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
+import { getLocaleFromPathname, t, withLocale } from "@/lib/i18n"
 
 const HERO_VIDEO_SRC = "/videos/hero-bg.mp4"
 
 export function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname || "/")
 
   useEffect(() => {
     if (videoRef.current) {
@@ -47,29 +51,29 @@ export function HeroSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-slate-200 mb-8">
           <div className="w-2 h-2 bg-[#FBA026] rounded-full animate-pulse" />
-          <span className="text-sm font-medium text-slate-600">Since 2005</span>
+          <span className="text-sm font-medium text-slate-600">{t(locale, "hero.since")}</span>
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-800 tracking-tight leading-tight text-balance">
-          We&apos;re experts in
-          <span className="block text-[#FBA026]">custom parts feeding systems</span>
+          {t(locale, "hero.titleA")}
+          <span className="block text-[#FBA026]">{t(locale, "hero.titleB")}</span>
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto text-pretty">
-          Precision-engineered automation solutions designed to optimize your production line efficiency and reduce operational costs.
+          {t(locale, "hero.subtitle")}
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button asChild size="lg" className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold px-8 py-6 text-base rounded-lg">
-            <Link href="/products">
-              Explore Products
+            <Link href={withLocale("/products", locale)}>
+              {t(locale, "hero.explore")}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold px-8 py-6 text-base rounded-lg">
-            <Link href="/videos">
+            <Link href={withLocale("/videos", locale)}>
               <Play className="mr-2 w-5 h-5" />
-              Watch Video
+              {t(locale, "hero.watch")}
             </Link>
           </Button>
         </div>

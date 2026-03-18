@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { getLocaleFromPathname, t, withLocale } from "@/lib/i18n"
 
 /** 11 Patents、1000+ Projects、50+ Countries，v0 视觉；每项链至对应页面 */
 const stats = [
-  { value: 11, suffix: "", label: "Patents", href: "/technology" },
-  { value: 1000, suffix: "+", label: "Projects", href: "/products" },
-  { value: 50, suffix: "+", label: "Countries", href: "/about" },
+  { value: 11, suffix: "", labelKey: "stats.patents", href: "/technology" },
+  { value: 1000, suffix: "+", labelKey: "stats.projects", href: "/products" },
+  { value: 50, suffix: "+", labelKey: "stats.countries", href: "/about" },
 ]
 
 function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
@@ -49,6 +51,9 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 }
 
 export function StatsBar() {
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname || "/")
+
   return (
     <section className="relative bg-white py-20 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-slate-200" />
@@ -62,8 +67,8 @@ export function StatsBar() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {stats.map((stat, index) => (
             <Link
-              key={stat.label}
-              href={stat.href}
+              key={stat.labelKey}
+              href={withLocale(stat.href, locale)}
               className="text-center relative block hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FBA026] focus-visible:ring-offset-2 rounded-lg"
             >
               {index < stats.length - 1 && (
@@ -73,7 +78,7 @@ export function StatsBar() {
               <div className="mt-4 flex items-center justify-center gap-3">
                 <div className="w-12 h-px bg-[#FBA026]" />
                 <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">
-                  {stat.label}
+                  {t(locale, stat.labelKey)}
                 </span>
                 <div className="w-12 h-px bg-[#FBA026]" />
               </div>

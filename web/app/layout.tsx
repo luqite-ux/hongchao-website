@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
+import { headers } from "next/headers";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ContactSidebar } from "@/components/contact-sidebar";
@@ -10,11 +11,13 @@ import { BackToTop } from "@/components/back-to-top";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { fetchNavCategories } from "@/lib/product-categories";
 import { urlForImage } from "@/lib/sanity.image";
+import { getServerLocale } from "@/lib/server-locale";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await fetchSiteSettings();
+  const locale = await getServerLocale();
+  const settings = await fetchSiteSettings(locale);
 
   const title = settings?.defaultSeo?.title || settings?.companyName || "Website";
   const description = settings?.defaultSeo?.description || "";
@@ -34,17 +37,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getServerLocale();
   const [settings, productCategories] = await Promise.all([
-    fetchSiteSettings(),
-    fetchNavCategories(),
+    fetchSiteSettings(locale),
+    fetchNavCategories(locale),
   ]);
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Header settings={settings} productCategories={productCategories} />
+        <Header settings={settings} productCategories={productCategories} locale={locale} />
         <main>{children}</main>
-        <Footer settings={settings} />
+        <Footer settings={settings} locale={locale} />
         <ContactSidebar />
         <BackToTop />
         <Toaster richColors position="top-center" />

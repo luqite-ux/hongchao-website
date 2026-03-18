@@ -17,11 +17,17 @@ const productLinks = [
 ]
 
 const companyLinks = [
+  { name: "About Us", href: "/about" },
   { name: "Case Studies", href: "/case-studies" },
+  { name: "Blog", href: "/blog" },
+  { name: "Contact", href: "/contact" },
 ]
 
 const supportLinks = [
   { name: "Resources", href: "/resources" },
+  { name: "FAQ", href: "/faq" },
+  { name: "Privacy Policy", href: "/privacy-policy" },
+  { name: "Terms of Service", href: "/terms-of-service" },
 ]
 
 function TikTokIcon(props: { className?: string }) {
@@ -42,7 +48,16 @@ function XIcon(props: { className?: string }) {
 
 const DEFAULT_ADDRESS = "No. 168 Automation Road, Ningbo, Zhejiang, China 315000"
 
-export function Footer({ settings }: { settings?: SiteSettings | null }) {
+function withLocale(href: string, locale: string) {
+  if (!href.startsWith("/")) return href
+  if (locale === "en" || !locale) return href
+  if (href === "/") return `/${locale}`
+  const seg = href.split("/")[1]
+  if (["en", "de", "es"].includes(seg)) return href
+  return `/${locale}${href}`
+}
+
+export function Footer({ settings, locale = "en" }: { settings?: SiteSettings | null; locale?: string }) {
   const address = settings?.contact?.address ?? DEFAULT_ADDRESS
   const social = settings?.social
   const socialLinks: Array<{
@@ -72,7 +87,7 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
           {/* 公司信息 */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
+            <Link href={withLocale("/", locale)} className="inline-flex items-center gap-2 mb-6">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
@@ -155,7 +170,7 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
             <ul className="space-y-3">
               {productLinks.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
+                  <Link href={withLocale(item.href, locale)} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
                     {item.name}
                   </Link>
                 </li>
@@ -171,7 +186,7 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
             <ul className="space-y-3">
               {companyLinks.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
+                  <Link href={withLocale(item.href, locale)} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
                     {item.name}
                   </Link>
                 </li>
@@ -187,7 +202,7 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
             <ul className="space-y-3">
               {supportLinks.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
+                  <Link href={withLocale(item.href, locale)} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
                     {item.name}
                   </Link>
                 </li>
@@ -206,10 +221,10 @@ export function Footer({ settings }: { settings?: SiteSettings | null }) {
               © {new Date().getFullYear()} Hongchao. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
-              <Link href="/privacy-policy" className="text-sm text-slate-500 hover:text-[#FBA026] transition-colors">
+              <Link href={withLocale("/privacy-policy", locale)} className="text-sm text-slate-500 hover:text-[#FBA026] transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms-of-service" className="text-sm text-slate-500 hover:text-[#FBA026] transition-colors">
+              <Link href={withLocale("/terms-of-service", locale)} className="text-sm text-slate-500 hover:text-[#FBA026] transition-colors">
                 Terms of Service
               </Link>
             </div>

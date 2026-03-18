@@ -9,6 +9,7 @@ import { patent } from './patent'
 import { post } from './post'
 import { docPage } from './docPage'
 import { faqPage } from './faqPage'
+import { simplePage } from "./simplePage"
 
 export const schemaTypes = [
   siteSettings,
@@ -22,6 +23,7 @@ export const schemaTypes = [
   post,
   docPage,
   faqPage,
+  simplePage,
 ]
 
 console.log('[Sanity schema] schemaTypes.length:', schemaTypes.length)

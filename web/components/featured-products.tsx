@@ -3,6 +3,8 @@
 import Image from "next/image"
 import { ArrowRight, Download } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { getLocaleFromPathname, t, withLocale } from "@/lib/i18n"
 
 /** 单条产品：可带 imageUrl 则展示产品图（图6），否则展示图标 */
 export type FeaturedProductItem = {
@@ -74,19 +76,21 @@ type Props = { items?: FeaturedProductItem[] }
 
 export function FeaturedProducts({ items }: Props) {
   const products = items && items.length >= 5 ? items : defaultProducts
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname || "/")
 
   return (
     <section className="bg-white py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <span className="inline-block text-[#FBA026] text-sm font-semibold uppercase tracking-widest mb-4">
-            Our Solutions
+            {t(locale, "featured.eyebrow")}
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight text-balance">
-            Featured Products
+            {t(locale, "featured.title")}
           </h2>
           <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-            Precision-engineered feeding systems designed for reliability and performance
+            {t(locale, "featured.subtitle")}
           </p>
         </div>
 
@@ -94,7 +98,7 @@ export function FeaturedProducts({ items }: Props) {
           {products.slice(0, 5).map((product, index) => (
             <Link
               key={`${product.href}-${index}`}
-              href={product.href}
+              href={withLocale(product.href, locale)}
               className="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-[#FBA026]/60 hover:shadow-[0_8px_32px_0_rgba(251,160,38,0.12)] transition-all duration-300 flex flex-col"
             >
               <div className="relative flex items-center justify-center bg-slate-50 pt-6 pb-4 px-4 min-h-[180px]" style={{ boxShadow: "inset 0 -1px 0 0 #e2e8f0" }}>
@@ -125,7 +129,7 @@ export function FeaturedProducts({ items }: Props) {
                   {product.description}
                 </p>
                 <div className="mt-4 flex items-center gap-1.5 text-[#FBA026] text-xs font-semibold">
-                  <span>Learn More</span>
+                  <span>{t(locale, "featured.learnMore")}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
@@ -135,18 +139,18 @@ export function FeaturedProducts({ items }: Props) {
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/products"
+            href={withLocale("/products", locale)}
             className="inline-flex items-center gap-2 px-8 py-3 border border-slate-200 rounded-lg text-slate-700 font-semibold hover:border-[#FBA026] hover:text-[#FBA026] transition-colors"
           >
-            View All Products
+            {t(locale, "featured.viewAll")}
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
-            href="/catalog"
+            href={withLocale("/catalog", locale)}
             className="inline-flex items-center gap-2 px-8 py-3 bg-[#FBA026] hover:bg-[#e8922a] text-white rounded-lg font-semibold shadow-[0_4px_16px_0_rgba(251,160,38,0.30)] hover:shadow-[0_4px_24px_0_rgba(251,160,38,0.45)] transition-all duration-200"
           >
             <Download className="w-4 h-4" />
-            Download Catalog
+            {t(locale, "featured.downloadCatalog")}
           </Link>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { Menu, X, ChevronDown, Phone, Mail, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,15 +32,36 @@ const navigation = [
   { name: "Contact", href: "/contact" },
 ]
 
+const SUPPORTED_LOCALES = ["en", "de", "es"] as const
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+
+function getLocaleFromPathname(pathname: string): SupportedLocale {
+  const seg = pathname.split("/")[1]
+  return (SUPPORTED_LOCALES as readonly string[]).includes(seg) ? (seg as SupportedLocale) : "en"
+}
+
+function withLocale(href: string, locale: SupportedLocale) {
+  if (locale === "en") return href
+  if (!href.startsWith("/")) return href
+  if (href === "/") return `/${locale}`
+  const seg = href.split("/")[1]
+  if ((SUPPORTED_LOCALES as readonly string[]).includes(seg)) return href
+  return `/${locale}${href}`
+}
+
 export function Header({
   settings,
   productCategories = [],
+  locale: localeProp,
 }: {
   settings: SiteSettings
   productCategories?: ProductCategory[]
+  locale?: string
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false)
+  const pathname = usePathname()
+  const locale = (localeProp as SupportedLocale | undefined) ?? getLocaleFromPathname(pathname || "/")
 
   const companyName = settings?.companyName ?? ""
   const email = CONTACT_EMAIL
@@ -76,7 +98,7 @@ export function Header({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-24 items-center justify-between">
           {/* Logo - Brand Block */}
-          <Link href="/" className="flex items-center gap-4 py-3">
+          <Link href={withLocale("/", locale)} className="flex items-center gap-4 py-3">
             <div className="flex-shrink-0 w-16 h-16 relative">
               <Image
                 src={logoSrc}
@@ -104,7 +126,7 @@ export function Header({
                   <NavigationMenuItem key={item.name}>
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/products"
+                        href={withLocale("/products", locale)}
                         className="inline-flex h-10 w-max items-center justify-center rounded-none bg-transparent px-6 py-2 text-sm font-medium transition-colors hover:text-primary focus:text-primary focus:outline-none"
                       >
                         Products
@@ -124,7 +146,7 @@ export function Header({
                           <li key={cat._id}>
                             <NavigationMenuLink asChild>
                               <Link
-                                href={cat.slug ? `/products/${cat.slug}` : "/products"}
+                                href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               >
                                 <span className="font-medium">{cat.title}</span>
@@ -140,7 +162,7 @@ export function Header({
                       </ul>
                       <div className="flex justify-center border-t border-border px-4 pb-4 pt-3">
                         <Link
-                          href="/products"
+                          href={withLocale("/products", locale)}
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/90 transition-colors"
                         >
                           View All Products
@@ -158,7 +180,7 @@ export function Header({
                         "hover:bg-[#F6A12A] hover:text-white focus:bg-[#F6A12A] focus:text-white focus-visible:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F6A12A] focus-visible:ring-offset-2"
                       )}
                     >
-                      <Link href={item.href}>{item.name}</Link>
+                      <Link href={withLocale(item.href, locale)}>{item.name}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 )
@@ -174,7 +196,7 @@ export function Header({
               size="lg"
               className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold rounded-lg h-11 px-6 transition-transform duration-200 hover:scale-105"
             >
-              <Link href="/contact">Request a Quote</Link>
+              <Link href={withLocale("/contact", locale)}>Request a Quote</Link>
             </Button>
           </div>
 
@@ -218,7 +240,7 @@ export function Header({
                       {productCategories.map((cat) => (
                         <Link
                           key={cat._id}
-                          href={cat.slug ? `/products/${cat.slug}` : "/products"}
+                          href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
                           className="block py-2 text-sm text-muted-foreground hover:text-primary"
                           onClick={() => setMobileMenuOpen(false)}
                         >
@@ -231,7 +253,7 @@ export function Header({
               ) : item.isProducts ? (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={withLocale(item.href, locale)}
                   className="block rounded-md py-3 text-base font-medium text-foreground hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -240,7 +262,7 @@ export function Header({
               ) : (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={withLocale(item.href, locale)}
                   className="block rounded-md py-3 text-base font-medium text-foreground hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -254,7 +276,7 @@ export function Header({
                 <LanguageSwitcher className="flex-1 text-slate-600 border-slate-200" />
               </div>
               <Button asChild className="w-full bg-primary hover:bg-[#D4871F] text-primary-foreground font-semibold">
-                <Link href="/contact">Request a Quote</Link>
+                <Link href={withLocale("/contact", locale)}>Request a Quote</Link>
               </Button>
             </div>
           </div>

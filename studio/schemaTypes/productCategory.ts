@@ -12,6 +12,16 @@ export const productCategory = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'title_de',
+      title: '标题（德语）',
+      type: 'string',
+    }),
+    defineField({
+      name: 'title_es',
+      title: '标题（西语）',
+      type: 'string',
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
@@ -21,6 +31,16 @@ export const productCategory = defineType({
     defineField({
       name: 'description',
       title: '描述',
+      type: 'text',
+    }),
+    defineField({
+      name: 'description_de',
+      title: '描述（德语）',
+      type: 'text',
+    }),
+    defineField({
+      name: 'description_es',
+      title: '描述（西语）',
       type: 'text',
     }),
     defineField({

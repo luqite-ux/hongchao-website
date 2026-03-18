@@ -1,12 +1,42 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Phone } from "lucide-react"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
+import { sanityClient } from "@/lib/sanity.client"
+import { simplePageBySlugQuery } from "@/lib/sanity.queries"
+import { PortableTextFallback, getPortableTextBlockTexts } from "@/lib/portable-text"
 
-export const metadata: Metadata = {
-  title: "Privacy Policy - Hongchao Automation Equipment",
-  description: "Privacy Policy for Hongchao Automation Equipment. How we collect, use, and protect your information.",
+type SimplePage = {
+  title?: string
+  summary?: string
+  content?: any
+  seo?: { title?: string; description?: string }
+} | null
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityClient.fetch<SimplePage>(
+    simplePageBySlugQuery,
+    { slug: "privacy-policy" },
+    { next: { revalidate: 60 } },
+  )
+
+  if (!page) {
+    return {
+      title: "Privacy Policy - Hongchao Automation Equipment",
+      description: "Privacy Policy for Hongchao Automation Equipment. How we collect, use, and protect your information.",
+    }
+  }
+
+  const title = page?.seo?.title || page?.title || "Privacy Policy"
+  const description =
+    page?.seo?.description ||
+    page?.summary ||
+    getPortableTextBlockTexts(page?.content).join(" ").slice(0, 160) ||
+    "Privacy Policy for Hongchao Automation Equipment."
+
+  return { title: `${title} - Hongchao Automation Equipment`, description }
 }
 
 const COMPANY_NAME = "Hongchao Automation Equipment"
@@ -72,20 +102,7 @@ export default function PrivacyPolicyPage() {
 
       <section className="py-16 lg:py-20 bg-background">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
-          <p className="text-muted-foreground leading-relaxed">
-            {COMPANY_NAME} (&quot;Hongchao,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our website and related services.
-          </p>
-
-          {sections.map((section) => (
-            <Card key={section.title} className="border-border">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">{section.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-muted-foreground leading-relaxed">{section.content}</p>
-              </CardContent>
-            </Card>
-          ))}
+          <SanityOrFallback />
 
           <Card className="border-primary/20">
             <CardHeader className="pb-2">
@@ -117,5 +134,48 @@ export default function PrivacyPolicyPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+async function SanityOrFallback() {
+  const page = await sanityClient.fetch<SimplePage>(
+    simplePageBySlugQuery,
+    { slug: "privacy-policy" },
+    { next: { revalidate: 60 } },
+  )
+
+  if (page === null) {
+    // 没创建 simplePage 时：继续使用旧的静态内容
+    return (
+      <>
+        <p className="text-muted-foreground leading-relaxed">
+          {COMPANY_NAME} (&quot;Hongchao,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our website and related services.
+        </p>
+
+        {sections.map((section) => (
+          <Card key={section.title} className="border-border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{section.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-muted-foreground leading-relaxed">{section.content}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </>
+    )
+  }
+
+  if (!page) notFound()
+
+  return (
+    <>
+      {page?.summary ? (
+        <p className="text-muted-foreground leading-relaxed">{page.summary}</p>
+      ) : null}
+      <article className="prose prose-lg max-w-none">
+        <PortableTextFallback value={page?.content} />
+      </article>
+    </>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
 import { MessageSquare, FileSearch, PenTool, Factory, PackageCheck } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { getLocaleFromPathname, t } from "@/lib/i18n"
 
 const steps = [
   { number: "01", title: "Consultation", description: "Share your requirements and challenges with our engineering team.", icon: MessageSquare },
@@ -11,6 +13,9 @@ const steps = [
 ]
 
 export function CustomProcess() {
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname || "/")
+
   return (
     <section className="bg-slate-50 py-24 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03]">
@@ -23,13 +28,13 @@ export function CustomProcess() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <span className="inline-block text-[#FBA026] text-sm font-semibold uppercase tracking-wider mb-4">
-            How We Work
+            {t(locale, "process.eyebrow")}
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight">
-            Custom Process
+            {t(locale, "process.title")}
           </h2>
           <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
-            From initial consultation to final delivery, we ensure excellence at every step
+            {t(locale, "process.subtitle")}
           </p>
         </div>
 

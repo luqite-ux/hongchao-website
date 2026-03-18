@@ -1,5 +1,6 @@
 import { sanityClient } from "./sanity.client";
 import { productCategoriesQuery, navCategoriesQuery } from "./sanity.queries";
+import type { Locale } from "@/lib/i18n";
 
 export interface ProductCategory {
   _id: string;
@@ -17,9 +18,13 @@ function sortBowlFeederFirst<T extends { slug?: string | null }>(list: T[]): T[]
   return first ? [first, ...rest] : list;
 }
 
-export async function fetchProductCategories() {
+export async function fetchProductCategories(locale: Locale = "en") {
   try {
-    const list = await sanityClient.fetch<ProductCategory[]>(productCategoriesQuery, {}, { next: { revalidate: 60 } });
+    const list = await sanityClient.fetch<ProductCategory[]>(
+      productCategoriesQuery,
+      { locale },
+      { next: { revalidate: 60 } }
+    );
     return sortBowlFeederFirst(list);
   } catch {
     return [];
@@ -27,15 +32,15 @@ export async function fetchProductCategories() {
 }
 
 /** 导航下拉用：按首页「精选分类 featuredCategories」顺序；若未配置则回退为全部分类（振动盘已排第一） */
-export async function fetchNavCategories(): Promise<ProductCategory[]> {
+export async function fetchNavCategories(locale: Locale = "en"): Promise<ProductCategory[]> {
   try {
     const data = await sanityClient.fetch<{ featuredCategories?: ProductCategory[] | null }>(
       navCategoriesQuery,
-      {},
+      { locale },
       { next: { revalidate: 60 } }
     );
     if (data?.featuredCategories?.length) return sortBowlFeederFirst(data.featuredCategories);
-    return fetchProductCategories();
+    return fetchProductCategories(locale);
   } catch {
     return [];
   }

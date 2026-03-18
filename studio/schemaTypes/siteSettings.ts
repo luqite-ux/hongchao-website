@@ -53,6 +53,10 @@ export const siteSettings = defineType({
       fields: [
         defineField({ name: 'title', title: '标题', type: 'string' }),
         defineField({ name: 'description', title: '描述', type: 'text' }),
+        defineField({ name: 'title_de', title: '标题（德语）', type: 'string' }),
+        defineField({ name: 'description_de', title: '描述（德语）', type: 'text' }),
+        defineField({ name: 'title_es', title: '标题（西语）', type: 'string' }),
+        defineField({ name: 'description_es', title: '描述（西语）', type: 'text' }),
         defineField({ name: 'ogImage', title: 'OG 图片', type: 'image', options: { hotspot: true } }),
       ],
     }),

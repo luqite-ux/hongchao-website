@@ -8,6 +8,8 @@ import { AboutSection } from "@/components/about-section"
 import { fetchNavCategories } from "@/lib/product-categories"
 import { urlForImage } from "@/lib/sanity.image"
 import { fetchHomepage } from "@/lib/homepage"
+import { getServerLocale } from "@/lib/server-locale"
+import { withLocale } from "@/lib/i18n"
 
 const FEATURED_TAGS = ["Best Seller", "High Speed", "Gentle Feed", "Precision", "Bulk Feed"] as const
 const DEFAULT_FEATURED: FeaturedProductItem[] = [
@@ -25,9 +27,11 @@ const DEFAULT_FEATURED: FeaturedProductItem[] = [
  * - 产品区展示分类图片（图6），无图则用图标
  */
 export default async function HomePage() {
+  const locale = await getServerLocale()
+
   let categories: Awaited<ReturnType<typeof fetchNavCategories>> = []
   try {
-    categories = await fetchNavCategories()
+    categories = await fetchNavCategories(locale)
   } catch {
     // Sanity 不可用时回退到本地默认数据
     categories = []
@@ -35,7 +39,7 @@ export default async function HomePage() {
 
   let homepage = null
   try {
-    homepage = await fetchHomepage()
+    homepage = await fetchHomepage(locale)
   } catch {
     homepage = null
   }
@@ -49,7 +53,7 @@ export default async function HomePage() {
         name: cat.title,
         description: cat.description ?? DEFAULT_FEATURED[i]!.description,
         tag: FEATURED_TAGS[i] ?? "Featured",
-        href: cat.slug ? `/products/${cat.slug}` : "/products",
+        href: withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale),
         imageUrl: cat.image ? urlForImage(cat.image).width(480).height(360).url() : null,
       })
     } else {

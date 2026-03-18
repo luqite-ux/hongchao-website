@@ -19,8 +19,16 @@ export const siteSettingsQuery = groq`
       twitter
     },
     defaultSeo{
-      title,
-      description,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      ),
       ogImage
     }
   }
@@ -29,9 +37,17 @@ export const siteSettingsQuery = groq`
 export const productCategoriesQuery = groq`
   *[_type == "productCategory"] | order(title asc) {
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
-    description,
+    "description": select(
+      $locale == "de" => coalesce(description_de, description),
+      $locale == "es" => coalesce(description_es, description),
+      description
+    ),
     image
   }
 `;
@@ -41,9 +57,17 @@ export const navCategoriesQuery = groq`
   *[_type == "homepage"][0]{
     "featuredCategories": featuredCategories[]->{
       _id,
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       "slug": slug.current,
-      description,
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      ),
       image
     }
   }
@@ -53,12 +77,24 @@ export const navCategoriesQuery = groq`
 export const productsQuery = groq`
   *[_type == "product"] | order(title asc) {
     _id,
-    title,
-    "excerpt": summary,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
+    "excerpt": select(
+      $locale == "de" => coalesce(summary_de, summary),
+      $locale == "es" => coalesce(summary_es, summary),
+      summary
+    ),
     "slug": slug.current,
     "mainImage": heroImage,
     "category": category->{
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       "slug": slug.current
     }
   }
@@ -67,14 +103,30 @@ export const productsQuery = groq`
 // 某分类 + 该分类下产品列表。products 子查询按 category._ref 匹配，兼容指向正式 id 或 drafts id 的引用，确保显示该分类下所有已发布产品
 export const productsByCategorySlugQuery = groq`
   *[_type == "productCategory" && slug.current == $category][0]{
-    title,
-    description,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
+    "description": select(
+      $locale == "de" => coalesce(description_de, description),
+      $locale == "es" => coalesce(description_es, description),
+      description
+    ),
     "slug": slug.current,
     "products": *[_type == "product" && (category._ref == ^._id || category._ref == "drafts."+^._id)] | order(title asc) {
       _id,
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       "slug": slug.current,
-      "excerpt": summary,
+      "excerpt": select(
+        $locale == "de" => coalesce(summary_de, summary),
+        $locale == "es" => coalesce(summary_es, summary),
+        summary
+      ),
       "mainImage": heroImage
     }
   }
@@ -84,14 +136,26 @@ export const productsByCategorySlugQuery = groq`
 export const productBySlugsQuery = groq`
   *[_type == "product" && slug.current == $product && category->slug.current == $category][0]{
     _id,
-    title,
-    "excerpt": summary,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
+    "excerpt": select(
+      $locale == "de" => coalesce(summary_de, summary),
+      $locale == "es" => coalesce(summary_es, summary),
+      summary
+    ),
     "mainImage": heroImage,
     "gallery": galleryImages,
     "engineeringImage": engineeringImage,
     "technicalImages": technicalImages,
     "packagingImage": packagingImage,
-    "body": content,
+    "body": select(
+      $locale == "de" => coalesce(content_de, content),
+      $locale == "es" => coalesce(content_es, content),
+      content
+    ),
     applications { partType, feedingBehavior, application },
     specs,
     "cases": cases[]{
@@ -99,19 +163,31 @@ export const productBySlugsQuery = groq`
       image
     },
     "category": category->{
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       "slug": slug.current
     },
     "video": video->{
       _id,
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       source,
       "videoId": videoId,
       "url": url,
       "videoFileUrl": videoFile.asset->url,
       "videoFileAsset": videoFile.asset->{ url },
       coverImage,
-      description
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      )
     }
   }
 `;
@@ -120,8 +196,16 @@ export const productBySlugsQuery = groq`
 export const videosQuery = groq`
   *[_type == "video"] | order(title asc) {
     _id,
-    title,
-    description,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
+    "description": select(
+      $locale == "de" => coalesce(description_de, description),
+      $locale == "es" => coalesce(description_es, description),
+      description
+    ),
     source,
     "videoId": videoId,
     "url": url,
@@ -134,7 +218,11 @@ export const videosQuery = groq`
 export const patentsQuery = groq`
   *[_type == "patent"] | order(order asc, _createdAt desc) {
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     patentNo,
     category,
     image
@@ -145,12 +233,24 @@ export const patentsQuery = groq`
 export const relatedProductsQuery = groq`
   *[_type == "product" && category->slug.current == $category && _id != $excludeId][0...3]{
     _id,
-    title,
-    "excerpt": summary,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
+    "excerpt": select(
+      $locale == "de" => coalesce(summary_de, summary),
+      $locale == "es" => coalesce(summary_es, summary),
+      summary
+    ),
     "slug": slug.current,
     "mainImage": heroImage,
     "category": category->{
-      title,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
       "slug": slug.current
     }
   }
@@ -160,10 +260,18 @@ export const relatedProductsQuery = groq`
 export const docPagesQuery = groq`
   *[_type == "docPage"] | order(updatedAt desc, _updatedAt desc) {
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
     category,
-    summary,
+    "summary": select(
+      $locale == "de" => coalesce(summary_de, summary),
+      $locale == "es" => coalesce(summary_es, summary),
+      summary
+    ),
     updatedAt,
     "fileUrl": file.asset->url
   }
@@ -172,16 +280,36 @@ export const docPagesQuery = groq`
 export const docPageBySlugQuery = groq`
   *[_type == "docPage" && slug.current == $slug][0]{
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
     category,
-    summary,
+    "summary": select(
+      $locale == "de" => coalesce(summary_de, summary),
+      $locale == "es" => coalesce(summary_es, summary),
+      summary
+    ),
     updatedAt,
     "fileUrl": file.asset->url,
-    content,
+    "content": select(
+      $locale == "de" => coalesce(content_de, content),
+      $locale == "es" => coalesce(content_es, content),
+      content
+    ),
     seo{
-      title,
-      description,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      ),
       ogImage
     }
   }
@@ -191,9 +319,17 @@ export const docPageBySlugQuery = groq`
 export const postsQuery = groq`
   *[_type == "post"] | order(publishedAt desc, _createdAt desc) {
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
-    excerpt,
+    "excerpt": select(
+      $locale == "de" => coalesce(excerpt_de, excerpt),
+      $locale == "es" => coalesce(excerpt_es, excerpt),
+      excerpt
+    ),
     publishedAt,
     coverImage
   }
@@ -202,15 +338,35 @@ export const postsQuery = groq`
 export const postBySlugQuery = groq`
   *[_type == "post" && slug.current == $slug][0]{
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
-    excerpt,
+    "excerpt": select(
+      $locale == "de" => coalesce(excerpt_de, excerpt),
+      $locale == "es" => coalesce(excerpt_es, excerpt),
+      excerpt
+    ),
     publishedAt,
     coverImage,
-    content,
+    "content": select(
+      $locale == "de" => coalesce(content_de, content),
+      $locale == "es" => coalesce(content_es, content),
+      content
+    ),
     seo{
-      title,
-      description,
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      ),
       ogImage
     }
   }
@@ -220,13 +376,46 @@ export const postBySlugQuery = groq`
 export const faqPageQuery = groq`
   *[_type == "faqPage"] | order(_updatedAt desc)[0]{
     _id,
-    title,
+    "title": select(
+      $locale == "de" => coalesce(title_de, title),
+      $locale == "es" => coalesce(title_es, title),
+      title
+    ),
     "slug": slug.current,
-    items[]{
+    "items": select(
+      $locale == "de" => coalesce(items_de, items),
+      $locale == "es" => coalesce(items_es, items),
+      items
+    )[]{
       _key,
       question,
       answer
     },
+    seo{
+      "title": select(
+        $locale == "de" => coalesce(title_de, title),
+        $locale == "es" => coalesce(title_es, title),
+        title
+      ),
+      "description": select(
+        $locale == "de" => coalesce(description_de, description),
+        $locale == "es" => coalesce(description_es, description),
+        description
+      ),
+      ogImage
+    }
+  }
+`;
+
+export const simplePageBySlugQuery = groq`
+  *[_type == "simplePage" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    section,
+    summary,
+    updatedAt,
+    content,
     seo{
       title,
       description,
