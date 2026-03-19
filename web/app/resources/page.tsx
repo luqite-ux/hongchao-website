@@ -6,6 +6,7 @@ import { docPagesQuery, postsQuery } from "@/lib/sanity.queries"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "Resources - Technical Articles, Guides & Downloads",
@@ -59,9 +60,10 @@ function labelByCategory(category?: string) {
 }
 
 export default async function ResourcesPage() {
+  const locale = await getServerLocale()
   const [docs, posts] = await Promise.all([
-    sanityClient.fetch<DocPageListItem[]>(docPagesQuery, {}, { next: { revalidate: 60 } }),
-    sanityClient.fetch<PostListItem[]>(postsQuery, {}, { next: { revalidate: 60 } }),
+    sanityClient.fetch<DocPageListItem[]>(docPagesQuery, { locale }, { next: { revalidate: 60 } }),
+    sanityClient.fetch<PostListItem[]>(postsQuery, { locale }, { next: { revalidate: 60 } }),
   ])
 
   const featuredDocs = (docs || []).slice(0, 6)

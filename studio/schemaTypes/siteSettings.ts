@@ -43,6 +43,7 @@ export const siteSettings = defineType({
         defineField({ name: 'tiktok', title: 'TikTok', type: 'url' }),
         defineField({ name: 'youtube', title: 'YouTube', type: 'url' }),
         defineField({ name: 'facebook', title: 'Facebook', type: 'url' }),
+        defineField({ name: 'instagram', title: 'Instagram', type: 'url' }),
         defineField({ name: 'twitter', title: 'X / Twitter', type: 'url' }),
       ],
     }),
@@ -59,6 +60,13 @@ export const siteSettings = defineType({
         defineField({ name: 'description_es', title: '描述（西语）', type: 'text' }),
         defineField({ name: 'ogImage', title: 'OG 图片', type: 'image', options: { hotspot: true } }),
       ],
+    }),
+    defineField({
+      name: 'catalogPdf',
+      title: '产品目录 PDF',
+      type: 'file',
+      description: '用于 /catalog 页面和 Contact 页的“Download Catalog”。上传后前台即可下载。',
+      options: { accept: 'application/pdf' },
     }),
   ],
 })

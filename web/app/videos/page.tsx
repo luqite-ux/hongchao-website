@@ -6,6 +6,8 @@ import { VideoDemo } from "@/components/video-demo"
 import { sanityClient } from "@/lib/sanity.client"
 import { videosQuery } from "@/lib/sanity.queries"
 import { urlForImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
+import { withLocale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Product Demonstration Videos - HONGCHAO Industrial Feeders",
@@ -25,16 +27,34 @@ type SanityVideo = {
 
 function getPlayableProps(v: SanityVideo) {
   const videoUrl =
-    (v.source === "upload" && v.videoFileUrl) || (v.source === "url" && v.url)
-      ? (v.videoFileUrl || v.url)!
+    v.source === "upload"
+      ? v.videoFileUrl ?? undefined
+      : v.source === "url"
+        ? v.url ?? undefined
+        : undefined
+  const videoId =
+    v.source === "youtube" || v.source === "vimeo" ? v.videoId ?? undefined : undefined
+  const videoSource =
+    videoId && (v.source === "youtube" || v.source === "vimeo")
+      ? (v.source as "youtube" | "vimeo")
       : undefined
-  const videoId = (v.source === "youtube" || v.source === "vimeo") ? v.videoId ?? undefined : undefined
-  const videoSource = v.source === "vimeo" ? "vimeo" as const : "youtube" as const
   return { videoUrl, videoId, videoSource }
 }
 
 export default async function VideosPage() {
-  const videos = await sanityClient.fetch<SanityVideo[]>(videosQuery, {}, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  let videos: SanityVideo[] = []
+  let sanityOffline = false
+  try {
+    videos = await sanityClient.fetch<SanityVideo[]>(
+      videosQuery,
+      { locale },
+      { next: { revalidate: 60 } }
+    )
+  } catch {
+    sanityOffline = true
+    videos = []
+  }
 
   return (
     <div className="flex flex-col">
@@ -42,7 +62,7 @@ export default async function VideosPage() {
       <section className="bg-white border-b border-slate-200 py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
-            href="/"
+            href={withLocale("/", locale)}
             className="inline-flex items-center text-xs text-slate-500 hover:text-[#FBA026] transition-colors mb-8 uppercase tracking-wider"
           >
             <ArrowLeft className="mr-2 h-3 w-3" />
@@ -66,6 +86,11 @@ export default async function VideosPage() {
       {/* Video Library from Sanity Studio */}
       <section className="py-16 lg:py-20 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {sanityOffline ? (
+            <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
+              当前环境无法连接 Sanity API（可能是网络/代理/CORS），因此视频列表暂时为空。请检查网络后刷新重试。
+            </div>
+          ) : null}
           {videos.length === 0 ? (
             <div className="py-16 text-center text-[#6B6B6B]">
               <p className="text-lg">No demonstration videos have been added yet.</p>
@@ -105,7 +130,7 @@ export default async function VideosPage() {
             </p>
             <div className="mt-8">
               <Button asChild size="lg" className="bg-[#F6A12A] hover:bg-[#D4871F] text-white font-semibold rounded-none h-12 px-8">
-                <Link href="/contact">
+                <Link href={withLocale("/contact", locale)}>
                   Request Custom Demo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

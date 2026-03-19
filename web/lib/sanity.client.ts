@@ -8,6 +8,8 @@ export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: process.env.NODE_ENV === "production",
+  // 为了让 Studio 刚发布/刚上传的内容尽快在前台可见，禁用 CDN 缓存。
+  // 结合 Next 的 revalidate 控制缓存即可。
+  useCdn: false,
   ...(process.env.SANITY_API_READ_TOKEN && { token: process.env.SANITY_API_READ_TOKEN }),
 });

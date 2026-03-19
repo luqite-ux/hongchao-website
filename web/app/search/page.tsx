@@ -5,6 +5,7 @@ import { Search as SearchIcon, ArrowRight } from "lucide-react"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "Search - HONGCHAO Automation Equipment",
@@ -26,9 +27,10 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>
 }) {
   const { q } = await searchParams
+  const locale = await getServerLocale()
   const term = (q ?? "").trim().toLowerCase()
   const allProducts = (await sanityClient
-    .fetch(productsQuery)
+    .fetch(productsQuery, { locale }, { next: { revalidate: 60 } })
     .catch(() => [])) as ProductHit[]
   const hits =
     term.length > 0

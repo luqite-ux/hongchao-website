@@ -7,6 +7,7 @@ import { postBySlugQuery } from "@/lib/sanity.queries"
 import { urlForImage } from "@/lib/sanity.image"
 import { PortableTextFallback, getPortableTextBlockTexts } from "@/lib/portable-text"
 import { Badge } from "@/components/ui/badge"
+import { getServerLocale } from "@/lib/server-locale"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -29,7 +30,8 @@ type PostDetail = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug }, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
 
   if (!post) return { title: "Post Not Found" }
 
@@ -55,7 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params
-  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug }, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
 
   if (!post) {
     return (

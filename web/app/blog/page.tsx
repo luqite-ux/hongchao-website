@@ -7,6 +7,7 @@ import { postsQuery } from "@/lib/sanity.queries"
 import { urlForImage } from "@/lib/sanity.image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "Blog - Insights & Updates",
@@ -23,7 +24,8 @@ type PostListItem = {
 }
 
 export default async function BlogPage() {
-  const posts = await sanityClient.fetch<PostListItem[]>(postsQuery, {}, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const posts = await sanityClient.fetch<PostListItem[]>(postsQuery, { locale }, { next: { revalidate: 60 } })
 
   return (
     <div className="flex flex-col">

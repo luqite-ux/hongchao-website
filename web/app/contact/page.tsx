@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { Mail, Phone, MapPin, Clock, MessageSquare, Wrench, FileText, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,9 +7,11 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { fetchSiteSettings } from "@/lib/site-settings"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import { ContactForm } from "@/components/contact-form"
+import { getServerLocale } from "@/lib/server-locale"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await fetchSiteSettings()
+  const locale = await getServerLocale()
+  const settings = await fetchSiteSettings(locale)
   const companyName = settings?.companyName || "HONGCHAO"
   return {
     title: `Contact Us - Request a Quote | ${companyName}`,
@@ -24,7 +27,8 @@ const inquiryTypes = [
 ]
 
 export default async function ContactPage() {
-  const settings = await fetchSiteSettings()
+  const locale = await getServerLocale()
+  const settings = await fetchSiteSettings(locale)
   const contact = settings?.contact
   const companyName = settings?.companyName || "HONGCHAO"
   const email = CONTACT_EMAIL
@@ -203,8 +207,8 @@ export default async function ContactPage() {
                   <p className="text-white/90 mb-4">
                     Get our complete product catalog with specifications and application guides.
                   </p>
-                  <Button variant="secondary" className="w-full font-semibold bg-white text-slate-800 hover:bg-slate-100">
-                    Download PDF
+                  <Button asChild variant="secondary" className="w-full font-semibold bg-white text-slate-800 hover:bg-slate-100">
+                    <Link href="/catalog">Download PDF</Link>
                   </Button>
                 </CardContent>
               </Card>

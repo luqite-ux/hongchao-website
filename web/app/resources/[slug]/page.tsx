@@ -8,6 +8,7 @@ import { PortableTextFallback, getPortableTextBlockTexts } from "@/lib/portable-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getServerLocale } from "@/lib/server-locale"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -15,7 +16,8 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug }, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
 
   if (!doc) return { title: "Resource Not Found" }
 
@@ -34,7 +36,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ResourceDetailPage({ params }: Props) {
   const { slug } = await params
-  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug }, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const doc = await sanityClient.fetch<any>(docPageBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
   if (!doc) notFound()
 
   return (

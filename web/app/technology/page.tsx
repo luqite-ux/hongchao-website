@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { sanityClient } from "@/lib/sanity.client"
 import { patentsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "Technology & Patents - Innovation at HONGCHAO",
@@ -75,6 +76,7 @@ const rdProcess = [
 ]
 
 export default async function TechnologyPage() {
+  const locale = await getServerLocale()
   const patents = await sanityClient.fetch<Array<{
     _id: string
     title: string
@@ -83,7 +85,7 @@ export default async function TechnologyPage() {
     image?: unknown
   }>>(
     patentsQuery,
-    {},
+    { locale },
     { next: { revalidate: 60 } }
   ).catch(() => [])
 

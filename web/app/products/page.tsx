@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
 import { productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "Products - Vibratory Feeders & Automation Equipment",
@@ -42,9 +43,10 @@ async function safeSanityFetch<T>(query: string, params: Record<string, unknown>
 }
 
 export default async function ProductsPage() {
+  const locale = await getServerLocale()
   const [categoriesRes, productsRes] = await Promise.all([
-    safeSanityFetch<Category[]>(productCategoriesQuery, {}),
-    safeSanityFetch<Product[]>(productsQuery, {}),
+    safeSanityFetch<Category[]>(productCategoriesQuery, { locale }),
+    safeSanityFetch<Product[]>(productsQuery, { locale }),
   ])
   const categories = categoriesRes ?? []
   const products = productsRes ?? []
@@ -78,7 +80,7 @@ export default async function ProductsPage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-100 font-semibold">
-                <Link href="#catalog">
+                <Link href="/catalog">
                   Download Catalog
                 </Link>
               </Button>

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { sanityClient } from "@/lib/sanity.client"
 import { faqPageQuery } from "@/lib/sanity.queries"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
   title: "FAQs - Frequently Asked Questions",
@@ -15,7 +16,8 @@ type FaqPage = {
 } | null
 
 export default async function FaqPage() {
-  const data = await sanityClient.fetch<FaqPage>(faqPageQuery, {}, { next: { revalidate: 60 } })
+  const locale = await getServerLocale()
+  const data = await sanityClient.fetch<FaqPage>(faqPageQuery, { locale }, { next: { revalidate: 60 } })
 
   const title = data?.seo?.title || data?.title || "FAQs"
   const desc =

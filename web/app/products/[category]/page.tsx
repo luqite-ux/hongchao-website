@@ -9,6 +9,7 @@ import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsByCategorySlugQuery, productCategoriesQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
 
 // 每次请求从 Sanity 拉取最新数据，避免构建时静态快照只含当时的产品数量
 export const dynamic = "force-dynamic"
@@ -48,8 +49,9 @@ export async function generateStaticParams() {
 
 export default async function CategoryPage({ params }: Props) {
   const { category } = await params
+  const locale = await getServerLocale()
 
-  const data = await safeSanityFetch<any>(productsByCategorySlugQuery, { category })
+  const data = await safeSanityFetch<any>(productsByCategorySlugQuery, { category, locale })
   const categoryTitleFallback = category
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))

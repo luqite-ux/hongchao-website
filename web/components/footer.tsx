@@ -70,8 +70,7 @@ export function Footer({ settings, locale = "en" }: { settings?: SiteSettings | 
     { name: "YouTube", href: social?.youtube, icon: Youtube },
     { name: "Facebook", href: social?.facebook, icon: Facebook },
     { name: "X", href: social?.twitter, icon: XIcon },
-    // 先固定展示：后续在 Sanity 增加字段后再接入
-    { name: "Instagram", href: undefined, icon: Instagram },
+    { name: "Instagram", href: social?.instagram, icon: Instagram },
   ]
 
   const logoSource = settings?.logoSmall ?? settings?.logo

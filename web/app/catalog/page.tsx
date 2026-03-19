@@ -4,18 +4,19 @@ import { ArrowRight, Download, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { fetchSiteSettings } from "@/lib/site-settings"
+import { getServerLocale } from "@/lib/server-locale"
+import { withLocale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Product Catalog - HONGCHAO Automation Equipment",
   description: "Download our product catalog for vibratory bowl feeders and custom feeding systems.",
 }
 
-/** 产品目录 PDF 路径：将 PDF 放到 public/downloads/ 后在此填写，留空则显示“即将提供” */
-const CATALOG_PDF_PATH = "" // 例如: "/downloads/hongchao-product-catalog.pdf"
-
 export default async function CatalogPage() {
-  const settings = await fetchSiteSettings()
+  const locale = await getServerLocale()
+  const settings = await fetchSiteSettings(locale)
   const companyName = settings?.companyName ?? "HONGCHAO"
+  const catalogPdfUrl = (settings as any)?.catalogPdfUrl as string | undefined
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -41,17 +42,17 @@ export default async function CatalogPage() {
               <FileText className="h-8 w-8" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800">
-              {CATALOG_PDF_PATH ? "Download Catalog" : "Catalog Coming Soon"}
+              {catalogPdfUrl ? "Download Catalog" : "Catalog Coming Soon"}
             </h2>
             <p className="mt-3 text-slate-500">
-              {CATALOG_PDF_PATH
+              {catalogPdfUrl
                 ? "Click below to download our product catalog (PDF)."
                 : "We are preparing our product catalog for download. Please contact us for technical brochures or product sheets."}
             </p>
-            {CATALOG_PDF_PATH ? (
+            {catalogPdfUrl ? (
               <div className="mt-8">
                 <Button asChild size="lg" className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold">
-                  <a href={CATALOG_PDF_PATH} download target="_blank" rel="noopener noreferrer">
+                  <a href={catalogPdfUrl} download target="_blank" rel="noopener noreferrer">
                     <Download className="mr-2 h-5 w-5" />
                     Download PDF
                   </a>
@@ -60,13 +61,13 @@ export default async function CatalogPage() {
             ) : (
               <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
                 <Button asChild size="lg" className="bg-[#FBA026] hover:bg-[#e8922a] text-white font-semibold">
-                  <Link href="/products">
+                  <Link href={withLocale("/products", locale)}>
                     View Products
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold">
-                  <Link href="/contact">Contact Us</Link>
+                  <Link href={withLocale("/contact", locale)}>Contact Us</Link>
                 </Button>
               </div>
             )}

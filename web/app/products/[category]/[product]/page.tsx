@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
+import { getServerLocale } from "@/lib/server-locale"
 
 type Props = {
   params: Promise<{ category: string; product: string }>
@@ -21,7 +22,8 @@ async function safeSanityFetch<T>(query: string, params: Record<string, unknown>
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, product } = await params
-  const data = await safeSanityFetch<{ title?: string; excerpt?: string }>(productBySlugsQuery, { category, product })
+  const locale = await getServerLocale()
+  const data = await safeSanityFetch<{ title?: string; excerpt?: string }>(productBySlugsQuery, { category, product, locale })
 
   if (!data) {
     return { title: "Product Not Found" }
@@ -45,8 +47,9 @@ export async function generateStaticParams() {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { category, product } = await params
+  const locale = await getServerLocale()
 
-  const data = await safeSanityFetch<any>(productBySlugsQuery, { category, product })
+  const data = await safeSanityFetch<any>(productBySlugsQuery, { category, product, locale })
   if (!data) {
     // Sanity 网络不可用时，避免整页 500，提供可预览的占位 UI
     const fallbackTitle = product
@@ -121,6 +124,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const related = await safeSanityFetch<any[]>(relatedProductsQuery, {
     category,
+    locale,
     excludeId: data._id,
   })
   const relatedList = Array.isArray(related) ? related : []

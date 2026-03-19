@@ -16,8 +16,10 @@ export const siteSettingsQuery = groq`
       tiktok,
       youtube,
       facebook,
+      instagram,
       twitter
     },
+    "catalogPdfUrl": catalogPdf.asset->url,
     defaultSeo{
       "title": select(
         $locale == "de" => coalesce(title_de, title),
