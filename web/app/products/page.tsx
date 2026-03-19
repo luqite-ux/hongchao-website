@@ -8,7 +8,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { TrustSection } from "@/components/trust-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
-import { productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
+import { navCategoriesQuery, productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
 import { urlForProductImage } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
@@ -50,6 +50,14 @@ export default async function ProductsPage() {
   ])
   const categories = categoriesRes ?? []
   const products = productsRes ?? []
+
+  // 分类顺序：优先按首页 featuredCategories 顺序；其余分类按 title 追加在后
+  const featuredRes = await safeSanityFetch<{ featuredCategories?: Category[] | null }>(navCategoriesQuery, { locale })
+  const featured = featuredRes?.featuredCategories?.filter(Boolean) ?? []
+  const featuredIdSet = new Set(featured.map((c) => c._id))
+  const rest = categories.filter((c) => !featuredIdSet.has(c._id))
+  rest.sort((a, b) => (a.title || "").localeCompare(b.title || ""))
+  const orderedCategories = featured.length ? [...featured, ...rest] : categories
 
   const productsWithCategory = products.filter((p) => p.category?.slug)
   const sanityOffline = !categoriesRes || !productsRes
@@ -151,7 +159,7 @@ export default async function ProductsPage() {
       )}
 
       {/* Product Categories */}
-      {categories.length > 0 && (
+      {orderedCategories.length > 0 && (
         <section className="py-16 md:py-24 bg-slate-50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
@@ -164,7 +172,7 @@ export default async function ProductsPage() {
             </div>
 
             <div className="space-y-12">
-              {categories.map((category, index) => (
+              {orderedCategories.map((category, index) => (
                 <Card key={category._id} className="overflow-hidden border-slate-100 bg-white hover:shadow-lg transition-shadow">
                   <div className={`grid lg:grid-cols-2 ${index % 2 === 1 ? "lg:flex-row-reverse" : ""}`}>
                     <div className={`aspect-[16/10] lg:aspect-auto bg-slate-50 flex items-center justify-center relative overflow-hidden ${index % 2 === 1 ? "lg:order-2" : ""}`}>
@@ -173,7 +181,7 @@ export default async function ProductsPage() {
                           src={urlForProductImage(category.image).width(1200).url()}
                           alt={category.title}
                           fill
-                          className="object-cover"
+                          className="object-contain p-8"
                           sizes="(max-width: 1024px) 100vw, 50vw"
                         />
                       ) : (
