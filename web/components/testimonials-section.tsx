@@ -5,6 +5,64 @@ import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { TestimonialItem } from "@/lib/homepage"
 
+/** 当 Sanity 暂无数据时展示的默认内容，与 seed-homepage-testimonials 一致；运行 seed 后可在后台编辑 */
+const defaultTestimonials: Omit<TestimonialItem, "_key">[] = [
+  {
+    quote:
+      "Hongchao delivered our vibratory bowl feeders ahead of schedule with zero defects. Their engineering team responded within hours at every stage — that level of service is simply rare in this industry.",
+    name: "Thomas Becker",
+    title: "Head of Production Engineering",
+    company: "Becker Precision GmbH",
+    country: "Germany",
+    focus: "Service",
+  },
+  {
+    quote:
+      "We've sourced feeding systems from three continents. Nothing matches the dimensional consistency and finish quality we receive from Hongchao. Every unit performs exactly to spec, batch after batch.",
+    name: "Hiroshi Tanaka",
+    title: "Senior Automation Manager",
+    company: "Tanaka Robotics Co.",
+    country: "Japan",
+    focus: "Quality",
+  },
+  {
+    quote:
+      "Our production line could not wait. Hongchao compressed a 12-week lead time down to 7 weeks without any compromise on quality. The system was running on day one of installation.",
+    name: "Amara Osei",
+    title: "VP of Operations",
+    company: "Precision Parts Africa",
+    country: "South Africa",
+    focus: "Delivery",
+  },
+  {
+    quote:
+      "The custom centrifugal feeder they designed for our micro-component line handles parts under 2mm flawlessly. The engineering expertise and attention to detail sets Hongchao apart from every competitor we evaluated.",
+    name: "Elena Vasquez",
+    title: "Automation Systems Director",
+    company: "Vasquez Industrial S.A.",
+    country: "Mexico",
+    focus: "Quality",
+  },
+  {
+    quote:
+      "From our first inquiry to final delivery, communication was transparent and proactive. Hongchao's after-sales support team resolved our integration query on the same day. Exceptional partnership.",
+    name: "James Whitfield",
+    title: "Plant Manager",
+    company: "Whitfield Assemblies Ltd.",
+    country: "United Kingdom",
+    focus: "Service",
+  },
+  {
+    quote:
+      "We placed a large order with a tight shipment window. Every unit arrived correctly documented, packaged, and on time. Reliability like this is why we have reordered four times in three years.",
+    name: "Sven Lindqvist",
+    title: "Procurement Lead",
+    company: "Nordic Auto Systems",
+    country: "Sweden",
+    focus: "Delivery",
+  },
+]
+
 const focusColors: Record<string, string> = {
   Service: "text-[#FBA026] bg-[#FBA026]/10",
   Quality: "text-emerald-600 bg-emerald-50",
@@ -45,7 +103,8 @@ function colorByIndex(index: number) {
 export function TestimonialsSection({ data }: { data?: TestimonialItem[] | null }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
-  const source = data ?? []
+  // Sanity 有数据则用 Sanity；否则用默认内容（运行 seed 后可于后台编辑）
+  const source = data && data.length > 0 ? data : defaultTestimonials
   const testimonials = source
     .map((item, idx) => ({
       id: item._key ?? String(idx + 1),
