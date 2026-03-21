@@ -6,7 +6,8 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "start": "sanity start",
-    "import:excel": "tsx scripts/import-from-excel.ts"
+    "import:excel": "tsx scripts/import-from-excel.ts",
+    "seed:testimonials": "tsx scripts/seed-homepage-testimonials.ts"
   },
   "dependencies": {
     "@sanity/client": "^6.22.0",

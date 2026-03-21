@@ -86,11 +86,8 @@ export const homepageQuery = groq`
     trustSection{
       "exhibitionImages": exhibitionImages[].asset->url,
       "clientVisitImages": clientVisitImages[].asset->url,
-      "inspectionImages": select(
-        defined(inspectionImages) && length(inspectionImages) > 0 => inspectionImages[].asset->url,
-        defined(inspectionImage) => [inspectionImage.asset->url],
-        []
-      )
+      "inspectionImages": inspectionImages[].asset->url,
+      "_inspectionImageLegacyUrl": inspectionImage.asset->url
     },
     "testimonials": testimonials[]{
       _key,

@@ -38,14 +38,35 @@ export interface HomepageData {
   hero?: unknown;
 }
 
+/** GROQ 原始 trustSection（含旧版单图 URL，在 fetch 内合并进 inspectionImages） */
+type TrustSectionFetched = TrustSectionData & {
+  _inspectionImageLegacyUrl?: string | null;
+};
+
+function normalizeTrustSection(raw: TrustSectionFetched | null | undefined): TrustSectionData | null {
+  if (!raw) return null;
+  const urls = (raw.inspectionImages ?? []).filter((u): u is string => Boolean(u));
+  const legacy = raw._inspectionImageLegacyUrl;
+  const inspectionImages =
+    urls.length > 0 ? urls : legacy ? [legacy] : [];
+  return {
+    exhibitionImages: raw.exhibitionImages,
+    clientVisitImages: raw.clientVisitImages,
+    inspectionImages,
+  };
+}
+
 export async function fetchHomepage(locale: Locale = "en"): Promise<HomepageData | null> {
   try {
-    const data = await sanityClient.fetch<HomepageData | null>(
-      homepageQuery,
-      { locale },
-      { next: { revalidate: 60 } }
-    );
-    return data;
+    const data = await sanityClient.fetch<
+      (Omit<HomepageData, "trustSection"> & { trustSection?: TrustSectionFetched | null }) | null
+    >(homepageQuery, { locale }, { next: { revalidate: 60 } });
+    if (!data) return null;
+    const { trustSection: rawTrust, ...rest } = data;
+    return {
+      ...rest,
+      trustSection: normalizeTrustSection(rawTrust ?? undefined),
+    };
   } catch {
     return null;
   }

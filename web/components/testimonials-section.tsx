@@ -5,81 +5,6 @@ import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { TestimonialItem } from "@/lib/homepage"
 
-const defaultTestimonials = [
-  {
-    id: 1,
-    quote:
-      "Hongchao delivered our vibratory bowl feeders ahead of schedule with zero defects. Their engineering team responded within hours at every stage — that level of service is simply rare in this industry.",
-    name: "Thomas Becker",
-    title: "Head of Production Engineering",
-    company: "Becker Precision GmbH",
-    country: "Germany",
-    focus: "Service",
-    initials: "TB",
-    color: "bg-blue-100 text-blue-700",
-  },
-  {
-    id: 2,
-    quote:
-      "We've sourced feeding systems from three continents. Nothing matches the dimensional consistency and finish quality we receive from Hongchao. Every unit performs exactly to spec, batch after batch.",
-    name: "Hiroshi Tanaka",
-    title: "Senior Automation Manager",
-    company: "Tanaka Robotics Co.",
-    country: "Japan",
-    focus: "Quality",
-    initials: "HT",
-    color: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    id: 3,
-    quote:
-      "Our production line could not wait. Hongchao compressed a 12-week lead time down to 7 weeks without any compromise on quality. The system was running on day one of installation.",
-    name: "Amara Osei",
-    title: "VP of Operations",
-    company: "Precision Parts Africa",
-    country: "South Africa",
-    focus: "Delivery",
-    initials: "AO",
-    color: "bg-orange-100 text-orange-700",
-  },
-  {
-    id: 4,
-    quote:
-      "The custom centrifugal feeder they designed for our micro-component line handles parts under 2mm flawlessly. The engineering expertise and attention to detail sets Hongchao apart from every competitor we evaluated.",
-    name: "Elena Vasquez",
-    title: "Automation Systems Director",
-    company: "Vasquez Industrial S.A.",
-    country: "Mexico",
-    focus: "Quality",
-    initials: "EV",
-    color: "bg-violet-100 text-violet-700",
-  },
-  {
-    id: 5,
-    quote:
-      "From our first inquiry to final delivery, communication was transparent and proactive. Hongchao's after-sales support team resolved our integration query on the same day. Exceptional partnership.",
-    name: "James Whitfield",
-    title: "Plant Manager",
-    company: "Whitfield Assemblies Ltd.",
-    country: "United Kingdom",
-    focus: "Service",
-    initials: "JW",
-    color: "bg-sky-100 text-sky-700",
-  },
-  {
-    id: 6,
-    quote:
-      "We placed a large order with a tight shipment window. Every unit arrived correctly documented, packaged, and on time. Reliability like this is why we have reordered four times in three years.",
-    name: "Sven Lindqvist",
-    title: "Procurement Lead",
-    company: "Nordic Auto Systems",
-    country: "Sweden",
-    focus: "Delivery",
-    initials: "SL",
-    color: "bg-teal-100 text-teal-700",
-  },
-]
-
 const focusColors: Record<string, string> = {
   Service: "text-[#FBA026] bg-[#FBA026]/10",
   Quality: "text-emerald-600 bg-emerald-50",
@@ -120,7 +45,7 @@ function colorByIndex(index: number) {
 export function TestimonialsSection({ data }: { data?: TestimonialItem[] | null }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
-  const source = data && data.length > 0 ? data : defaultTestimonials
+  const source = data ?? []
   const testimonials = source
     .map((item, idx) => ({
       id: item._key ?? String(idx + 1),

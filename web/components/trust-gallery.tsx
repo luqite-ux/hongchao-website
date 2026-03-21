@@ -102,7 +102,7 @@ export function TrustGallery({ data }: TrustGalleryProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {inspectionImages.map((src, i) => (
                 <div
-                  key={src}
+                  key={`inspection-${i}-${src}`}
                   className="aspect-[4/3] relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-sm"
                 >
                   <Image

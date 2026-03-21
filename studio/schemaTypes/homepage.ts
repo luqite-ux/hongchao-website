@@ -120,7 +120,7 @@ export const homepage = defineType({
       title: '客户评价列表',
       type: 'array',
       group: 'testimonials',
-      description: '首页 “Trusted by Engineers Worldwide” 区块内容，建议 6 条以上用于轮播。',
+      description: '建议 6 条以上用于轮播；首次可运行 studio/scripts/seed-homepage-testimonials.ts 写入默认内容。',
       of: [
         defineArrayMember({
           type: 'object',
