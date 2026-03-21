@@ -20,8 +20,7 @@ export function TrustGallery({ data }: TrustGalleryProps) {
 
   const exhibitionImages = (data?.exhibitionImages ?? []).filter(Boolean) as string[]
   const clientVisitImages = (data?.clientVisitImages ?? []).filter(Boolean) as string[]
-
-  const inspectionImageUrl = data?.inspectionImageUrl ?? "/images/customer-inspection.jpg"
+  const inspectionImages = (data?.inspectionImages ?? []).filter(Boolean) as string[]
 
   return (
     <section className="bg-white py-16 lg:py-20 border-t border-slate-100">
@@ -99,11 +98,28 @@ export function TrustGallery({ data }: TrustGalleryProps) {
         )}
 
         {activeTab === "inspection" && (
-          <div className="flex justify-center">
-            <div className="relative aspect-[4/3] w-full max-w-3xl rounded-lg overflow-hidden border border-slate-200 bg-white shadow-sm">
-              <Image src={inspectionImageUrl} alt="Customer inspection at factory" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+          inspectionImages.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {inspectionImages.map((src, i) => (
+                <div
+                  key={src}
+                  className="aspect-[4/3] relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-sm"
+                >
+                  <Image
+                    src={src}
+                    alt={`Customer inspection ${i + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="py-10 text-center text-slate-500 text-sm border border-slate-200 rounded-lg bg-slate-50">
+              No customer inspection images yet. Please upload in Sanity.
+            </div>
+          )
         )}
       </div>
     </section>

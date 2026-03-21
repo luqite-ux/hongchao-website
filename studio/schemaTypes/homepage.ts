@@ -10,6 +10,7 @@ export const homepage = defineType({
     { name: 'products', title: '精选产品' },
     { name: 'stats', title: '数字统计' },
     { name: 'trust', title: '信任模块（展会/来访/验货）' },
+    { name: 'testimonials', title: '客户评价（Testimonials）' },
   ],
   fields: [
     defineField({
@@ -106,16 +107,68 @@ export const homepage = defineType({
           description: '客户来访/工厂参观图片列表。',
         }),
         defineField({
-          name: 'inspectionText',
-          title: 'Customer Inspection 说明文案',
-          type: 'text',
-          rows: 4,
-        }),
-        defineField({
-          name: 'inspectionImage',
+          name: 'inspectionImages',
           title: 'Customer Inspection 图片',
-          type: 'image',
-          options: { hotspot: true },
+          type: 'array',
+          of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
+          description: '客户验货/质检现场图片列表（将按顺序展示）。',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'testimonials',
+      title: '客户评价列表',
+      type: 'array',
+      group: 'testimonials',
+      description: '首页 “Trusted by Engineers Worldwide” 区块内容，建议 6 条以上用于轮播。',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'quote',
+              title: '评价内容',
+              type: 'text',
+              rows: 4,
+              validation: (r) => r.required(),
+            }),
+            defineField({
+              name: 'name',
+              title: '姓名',
+              type: 'string',
+              validation: (r) => r.required(),
+            }),
+            defineField({ name: 'title', title: '职位', type: 'string' }),
+            defineField({ name: 'company', title: '公司', type: 'string' }),
+            defineField({ name: 'country', title: '国家/地区', type: 'string' }),
+            defineField({
+              name: 'focus',
+              title: '评价维度',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Service', value: 'Service' },
+                  { title: 'Quality', value: 'Quality' },
+                  { title: 'Delivery', value: 'Delivery' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'Service',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'name',
+              subtitle: 'company',
+              quote: 'quote',
+            },
+            prepare({ title, subtitle, quote }: { title?: string; subtitle?: string; quote?: string }) {
+              return {
+                title: title || 'Unnamed',
+                subtitle: subtitle || quote || 'No quote',
+              }
+            },
+          },
         }),
       ],
     }),

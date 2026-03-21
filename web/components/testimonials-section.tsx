@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import type { TestimonialItem } from "@/lib/homepage"
 
-const testimonials = [
+const defaultTestimonials = [
   {
     id: 1,
     quote:
@@ -99,12 +100,44 @@ function QuoteIcon({ className }: { className?: string }) {
   )
 }
 
-export function TestimonialsSection() {
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  return (parts[0]?.[0] ?? "").toUpperCase() + (parts[1]?.[0] ?? "").toUpperCase()
+}
+
+function colorByIndex(index: number) {
+  const palette = [
+    "bg-blue-100 text-blue-700",
+    "bg-emerald-100 text-emerald-700",
+    "bg-orange-100 text-orange-700",
+    "bg-violet-100 text-violet-700",
+    "bg-sky-100 text-sky-700",
+    "bg-teal-100 text-teal-700",
+  ]
+  return palette[index % palette.length]!
+}
+
+export function TestimonialsSection({ data }: { data?: TestimonialItem[] | null }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const source = data && data.length > 0 ? data : defaultTestimonials
+  const testimonials = source
+    .map((item, idx) => ({
+      id: item._key ?? String(idx + 1),
+      quote: item.quote ?? "",
+      name: item.name ?? "",
+      title: item.title ?? "",
+      company: item.company ?? "",
+      country: item.country ?? "",
+      focus: item.focus ?? "Service",
+      initials: getInitials(item.name ?? ""),
+      color: colorByIndex(idx),
+    }))
+    .filter((item) => item.quote && item.name)
 
   // Carousel shows 3 cards at a time on large screens; on mobile shows 1
   const totalSlides = testimonials.length
+  if (totalSlides === 0) return null
 
   const navigate = useCallback(
     (direction: "prev" | "next") => {
@@ -171,7 +204,7 @@ export function TestimonialsSection() {
               <span
                 className={cn(
                   "absolute top-7 right-7 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full",
-                  focusColors[t.focus]
+                  focusColors[t.focus] ?? focusColors.Service
                 )}
               >
                 {t.focus}

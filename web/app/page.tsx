@@ -68,7 +68,7 @@ export default async function HomePage() {
       <FeaturedProducts items={items} />
       <CustomProcess />
       <TrustGallery data={homepage?.trustSection} />
-      <TestimonialsSection />
+      <TestimonialsSection data={homepage?.testimonials} />
       <AboutSection />
     </main>
   )

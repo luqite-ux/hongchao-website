@@ -6,8 +6,17 @@ import type { Locale } from "@/lib/i18n";
 export interface TrustSectionData {
   exhibitionImages?: string[] | null;
   clientVisitImages?: string[] | null;
-  inspectionText?: string | null;
-  inspectionImageUrl?: string | null;
+  inspectionImages?: string[] | null;
+}
+
+export interface TestimonialItem {
+  _key?: string;
+  quote?: string | null;
+  name?: string | null;
+  title?: string | null;
+  company?: string | null;
+  country?: string | null;
+  focus?: string | null;
 }
 
 /** 首页精选产品（来自 Sanity featuredProducts），含主图用于展示 */
@@ -25,6 +34,7 @@ export interface HomepageData {
   featuredCategories?: unknown;
   featuredProducts?: HomepageFeaturedProduct[] | null;
   trustSection?: TrustSectionData | null;
+  testimonials?: TestimonialItem[] | null;
   hero?: unknown;
 }
 

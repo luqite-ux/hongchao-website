@@ -86,12 +86,20 @@ export const homepageQuery = groq`
     trustSection{
       "exhibitionImages": exhibitionImages[].asset->url,
       "clientVisitImages": clientVisitImages[].asset->url,
-      "inspectionText": select(
-        $locale == "de" => coalesce(inspectionText_de, inspectionText),
-        $locale == "es" => coalesce(inspectionText_es, inspectionText),
-        inspectionText
-      ),
-      "inspectionImageUrl": inspectionImage.asset->url
+      "inspectionImages": select(
+        defined(inspectionImages) && length(inspectionImages) > 0 => inspectionImages[].asset->url,
+        defined(inspectionImage) => [inspectionImage.asset->url],
+        []
+      )
+    },
+    "testimonials": testimonials[]{
+      _key,
+      quote,
+      name,
+      title,
+      company,
+      country,
+      focus
     }
   }
 `;
