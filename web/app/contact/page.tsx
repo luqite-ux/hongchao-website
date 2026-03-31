@@ -228,18 +228,15 @@ export default async function ContactPage() {
           </div>
           <div className="bg-white rounded-lg border border-slate-100 overflow-hidden">
             <iframe
-              title="Our location - No.81 Caixing Road, Linhu Town, Wuzhong District, Suzhou, Jiangsu, China"
-              src="https://www.google.com/maps?q=No.81+Caixing+Road,+Linhu+Town,+Wuzhong+District,+Suzhou,+Jiangsu,+China&output=embed"
+              title="Our location - No.81 CaiXing Road, LinHu Town, WuZhong District, SuZhou City, China"
+              src="https://www.google.com/maps?q=No.81+CaiXing+Road,+LinHu+Town,+WuZhong+District,+SuZhou+City,+China&output=embed"
               className="w-full h-[240px] md:h-[360px] border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
             <div className="text-center py-4 px-4">
               <p className="text-slate-500">
-                No.81 Caixing Road, Linhu Town, Wuzhong District
-              </p>
-              <p className="text-slate-500">
-                Suzhou, Jiangsu, China
+                No.81 CaiXing Road, LinHu Town, WuZhong District, SuZhou City, China
               </p>
             </div>
           </div>

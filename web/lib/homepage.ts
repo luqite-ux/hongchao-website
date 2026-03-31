@@ -29,6 +29,12 @@ export interface HomepageFeaturedProduct {
   category?: { title?: string; slug?: string | null } | null;
 }
 
+/** 首页 About 区块：公司介绍视频（Sanity 源文件 CDN URL + 可选封面） */
+export interface HomepageAboutSection {
+  videoUrl?: string | null;
+  poster?: SanityImageSource | null;
+}
+
 export interface HomepageData {
   stats?: { value: string; label: string }[];
   featuredCategories?: unknown;
@@ -36,6 +42,7 @@ export interface HomepageData {
   trustSection?: TrustSectionData | null;
   testimonials?: TestimonialItem[] | null;
   hero?: unknown;
+  aboutSection?: HomepageAboutSection | null;
 }
 
 /** GROQ 原始 trustSection（含旧版单图 URL，在 fetch 内合并进 inspectionImages） */

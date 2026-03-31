@@ -142,7 +142,7 @@ export default async function AboutPage() {
               <p className="mt-1 text-slate-500">Patents</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-[#FBA026]">1000+</p>
+              <p className="text-4xl font-bold text-[#FBA026]">10,000+</p>
               <p className="mt-1 text-slate-500">Projects</p>
             </div>
             <div>

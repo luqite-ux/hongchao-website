@@ -48,7 +48,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <Header settings={settings} productCategories={productCategories} locale={locale} />
         <main>{children}</main>
-        <Footer settings={settings} locale={locale} />
+        <Footer settings={settings} locale={locale} productCategories={productCategories} />
         <ContactSidebar />
         <BackToTop />
         <Toaster richColors position="top-center" />

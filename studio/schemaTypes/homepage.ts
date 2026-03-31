@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
+import { VideoFilePreview } from '../components/VideoFilePreview'
 
 export const homepage = defineType({
   name: 'homepage',
@@ -11,6 +12,7 @@ export const homepage = defineType({
     { name: 'stats', title: '数字统计' },
     { name: 'trust', title: '信任模块（展会/来访/验货）' },
     { name: 'testimonials', title: '客户评价（Testimonials）' },
+    { name: 'about', title: 'About 区块（公司视频）' },
   ],
   fields: [
     defineField({
@@ -112,6 +114,35 @@ export const homepage = defineType({
           type: 'array',
           of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
           description: '客户验货/质检现场图片列表（将按顺序展示）。',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'aboutSection',
+      title: 'About Hongchao — 公司介绍视频',
+      type: 'object',
+      group: 'about',
+      description:
+        '首页「About Hongchao」左侧视频：在 Studio 上传新文件即可替换；不填则使用网站内置默认视频与封面。',
+      fields: [
+        defineField({
+          name: 'videoFile',
+          title: '视频文件',
+          type: 'file',
+          description: '推荐 MP4（H.264）；上传后可在下方预览。',
+          options: {
+            accept: 'video/*',
+          },
+          components: {
+            input: VideoFilePreview,
+          },
+        }),
+        defineField({
+          name: 'poster',
+          title: '封面图（未点击播放前显示）',
+          type: 'image',
+          options: { hotspot: true },
+          description: '不传则使用默认封面；建议 16:9。',
         }),
       ],
     }),

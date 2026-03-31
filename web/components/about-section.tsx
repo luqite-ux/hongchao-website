@@ -1,20 +1,30 @@
 "use client"
 
 import Link from "next/link"
-import { Play, Globe, Award, Users, Factory } from "lucide-react"
+import { Play, Globe, Award, Users, ShieldCheck } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
-const COMPANY_VIDEO_SRC = "/videos/company-intro.mp4"
-const COMPANY_VIDEO_POSTER = "/images/about/video-poster.jpg"
+const DEFAULT_VIDEO_SRC = "/videos/company-intro.mp4"
+const DEFAULT_POSTER_SRC = "/images/about/video-poster.jpg"
 
 const features = [
   { icon: Award, value: "11 Patents", description: "Industry-leading innovations" },
-  { icon: Factory, value: "20,000m² Facility", description: "State-of-the-art manufacturing" },
-  { icon: Users, value: "200+ Engineers", description: "Expert technical team" },
+  { icon: ShieldCheck, value: "CE certifications", description: "European conformity & quality standards" },
+  { icon: Users, value: "R&D department", description: "Innovation & product development" },
   { icon: Globe, value: "50+ Countries", description: "Global service network" },
 ]
 
-export function AboutSection() {
+export function AboutSection({
+  videoSrc,
+  posterSrc,
+}: {
+  /** Sanity 上传视频的绝对 URL；缺省用本地默认文件 */
+  videoSrc?: string | null
+  /** 封面图 URL（可由服务端 urlForImage 生成）；缺省用本地默认图 */
+  posterSrc?: string | null
+} = {}) {
+  const companyVideoSrc = videoSrc?.trim() || DEFAULT_VIDEO_SRC
+  const companyPosterSrc = posterSrc?.trim() || DEFAULT_POSTER_SRC
   const [videoPlaying, setVideoPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -55,7 +65,7 @@ export function AboutSection() {
                 aria-label="Play company video"
               >
                 <img
-                  src={COMPANY_VIDEO_POSTER}
+                  src={companyPosterSrc}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
@@ -70,8 +80,8 @@ export function AboutSection() {
             ) : (
               <video
                 ref={videoRef}
-                src={COMPANY_VIDEO_SRC}
-                poster={COMPANY_VIDEO_POSTER}
+                src={companyVideoSrc}
+                poster={companyPosterSrc}
                 controls
                 playsInline
                 className="w-full h-full object-cover"

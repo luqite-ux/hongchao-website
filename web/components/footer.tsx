@@ -4,17 +4,10 @@ import type { ComponentType } from "react"
 import { Mail, Phone, MapPin, Linkedin, Youtube, Facebook, Instagram } from "lucide-react"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import type { SiteSettings } from "@/lib/site-settings"
+import type { ProductCategory } from "@/lib/product-categories"
 import { urlForImage } from "@/lib/sanity.image"
 
-/** 白底四列页脚，与 v0-ref 一致，不再重复 Engineers/Countries（由 AboutSection 统一展示） */
-const productLinks = [
-  { name: "Vibratory Bowl Feeder", href: "/products/vibration-bowl-feeder" },
-  { name: "Centrifugal Feeder", href: "/products/centrifugal-feeder" },
-  { name: "Step Feeder", href: "/products/step-feeder" },
-  { name: "Linear Feeder", href: "/products/linear-feeder" },
-  { name: "Hopper System", href: "/products/hopper" },
-  { name: "Custom Solutions", href: "/products" },
-]
+/** 白底四列页脚；PRODUCTS 与 Header 下拉同源（fetchNavCategories），保证分类与链接一致 */
 
 const companyLinks = [
   { name: "About Us", href: "/about" },
@@ -46,7 +39,8 @@ function XIcon(props: { className?: string }) {
   )
 }
 
-const DEFAULT_ADDRESS = "No. 168 Automation Road, Ningbo, Zhejiang, China 315000"
+const DEFAULT_ADDRESS =
+  "No.81 CaiXing Road, LinHu Town, WuZhong District, SuZhou City, China"
 
 function withLocale(href: string, locale: string) {
   if (!href.startsWith("/")) return href
@@ -57,7 +51,15 @@ function withLocale(href: string, locale: string) {
   return `/${locale}${href}`
 }
 
-export function Footer({ settings, locale = "en" }: { settings?: SiteSettings | null; locale?: string }) {
+export function Footer({
+  settings,
+  locale = "en",
+  productCategories = [],
+}: {
+  settings?: SiteSettings | null
+  locale?: string
+  productCategories?: ProductCategory[]
+}) {
   const address = settings?.contact?.address ?? DEFAULT_ADDRESS
   const social = settings?.social
   const socialLinks: Array<{
@@ -167,13 +169,27 @@ export function Footer({ settings, locale = "en" }: { settings?: SiteSettings | 
               PRODUCTS
             </h3>
             <ul className="space-y-3">
-              {productLinks.map((item) => (
-                <li key={item.name}>
-                  <Link href={withLocale(item.href, locale)} className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors">
-                    {item.name}
+              {productCategories.length > 0 ? (
+                productCategories.map((cat) => (
+                  <li key={cat._id}>
+                    <Link
+                      href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                      className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors"
+                    >
+                      {cat.title}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <Link
+                    href={withLocale("/products", locale)}
+                    className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors"
+                  >
+                    View all products
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
 

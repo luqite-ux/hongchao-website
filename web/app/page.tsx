@@ -23,7 +23,7 @@ const DEFAULT_FEATURED: FeaturedProductItem[] = [
 /**
  * 首页：v0 全量布局，仅亮色系统（bg-white / bg-slate-50）。
  * - 视频背景：/videos/hero-bg.mp4
- * - StatsBar：11 Patents、1000+ Projects、50+ Countries
+ * - StatsBar：11 Patents、10,000+ Projects、50+ Countries
  * - 产品区展示分类图片（图6），无图则用图标
  */
 export default async function HomePage() {
@@ -61,6 +61,10 @@ export default async function HomePage() {
     }
   }
 
+  const aboutPosterUrl = homepage?.aboutSection?.poster
+    ? urlForImage(homepage.aboutSection.poster).width(1280).height(720).fit("crop").url()
+    : undefined
+
   return (
     <main className="min-h-screen bg-white">
       <HeroSection />
@@ -69,7 +73,7 @@ export default async function HomePage() {
       <CustomProcess />
       <TrustGallery data={homepage?.trustSection} />
       <TestimonialsSection data={homepage?.testimonials} />
-      <AboutSection />
+      <AboutSection videoSrc={homepage?.aboutSection?.videoUrl} posterSrc={aboutPosterUrl} />
     </main>
   )
 }

@@ -184,7 +184,7 @@ export default function IndustriesPage() {
 
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <p className="text-4xl font-bold text-primary">1000+</p>
+              <p className="text-4xl font-bold text-primary">10,000+</p>
               <p className="mt-2 text-muted-foreground">Projects Completed</p>
             </div>
             <div>

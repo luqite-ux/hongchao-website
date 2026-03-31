@@ -5,10 +5,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { getLocaleFromPathname, t, withLocale } from "@/lib/i18n"
 
-/** 11 Patents、1000+ Projects、50+ Countries，v0 视觉；每项链至对应页面 */
+/** 11 Patents、10,000+ Projects、50+ Countries，v0 视觉；每项链至对应页面 */
 const stats = [
   { value: 11, suffix: "", labelKey: "stats.patents", href: "/technology" },
-  { value: 1000, suffix: "+", labelKey: "stats.projects", href: "/products" },
+  { value: 10000, suffix: "+", labelKey: "stats.projects", href: "/products" },
   { value: 50, suffix: "+", labelKey: "stats.countries", href: "/about" },
 ]
 

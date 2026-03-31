@@ -89,6 +89,10 @@ export const homepageQuery = groq`
       "inspectionImages": inspectionImages[].asset->url,
       "_inspectionImageLegacyUrl": inspectionImage.asset->url
     },
+    aboutSection{
+      "videoUrl": videoFile.asset->url,
+      poster
+    },
     "testimonials": testimonials[]{
       _key,
       quote,
