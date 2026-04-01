@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { TestimonialItem } from "@/lib/homepage"
 
 /** 当 Sanity 暂无数据时展示的默认内容，与 seed-homepage-testimonials 一致；运行 seed 后可在后台编辑 */
-const defaultTestimonials: Omit<TestimonialItem, "_key">[] = [
+const defaultTestimonials: TestimonialItem[] = [
   {
     quote:
       "Hongchao delivered our vibratory bowl feeders ahead of schedule with zero defects. Their engineering team responded within hours at every stage — that level of service is simply rare in this industry.",
@@ -107,7 +107,7 @@ export function TestimonialsSection({ data }: { data?: TestimonialItem[] | null 
   const source = data && data.length > 0 ? data : defaultTestimonials
   const testimonials = source
     .map((item, idx) => ({
-      id: item._key ?? String(idx + 1),
+      id: item._key != null && item._key !== "" ? item._key : String(idx + 1),
       quote: item.quote ?? "",
       name: item.name ?? "",
       title: item.title ?? "",
