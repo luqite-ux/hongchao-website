@@ -31,16 +31,28 @@ export async function fetchProductCategories(locale: Locale = "en") {
   }
 }
 
-/** 导航下拉用：按首页「精选分类 featuredCategories」顺序；若未配置则回退为全部分类（振动盘已排第一） */
+/**
+ * 导航 / 页脚用：与产品列表页一致——先按首页「精选分类」顺序（振动盘在该段内优先），
+ * 再把未列入精选的其它 productCategory 自动追加在后。这样后台新建分类不必再手动画进精选也会显示。
+ */
 export async function fetchNavCategories(locale: Locale = "en"): Promise<ProductCategory[]> {
   try {
-    const data = await sanityClient.fetch<{ featuredCategories?: ProductCategory[] | null }>(
+    const navData = await sanityClient.fetch<{ featuredCategories?: ProductCategory[] | null }>(
       navCategoriesQuery,
       { locale },
       { next: { revalidate: 60 } }
     );
-    if (data?.featuredCategories?.length) return sortBowlFeederFirst(data.featuredCategories);
-    return fetchProductCategories(locale);
+    const featuredRaw = navData?.featuredCategories?.filter(Boolean) ?? [];
+    const allCategories = await fetchProductCategories(locale);
+
+    if (!featuredRaw.length) {
+      return allCategories;
+    }
+
+    const featured = sortBowlFeederFirst(featuredRaw);
+    const featuredIds = new Set(featured.map((c) => c._id));
+    const rest = allCategories.filter((c) => !featuredIds.has(c._id));
+    return [...featured, ...rest];
   } catch {
     return [];
   }
