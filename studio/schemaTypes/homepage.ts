@@ -34,6 +34,18 @@ export const homepage = defineType({
         defineField({ name: 'subtitle', title: '副标题', type: 'text' }),
         defineField({ name: 'image', title: '背景/配图', type: 'image', options: { hotspot: true } }),
         defineField({
+          name: 'videoFile',
+          title: '背景视频（可选）',
+          type: 'file',
+          description: '用于首页首屏背景视频；推荐 MP4（H.264）。不上传则使用网站内置默认视频。',
+          options: {
+            accept: 'video/*',
+          },
+          components: {
+            input: VideoFilePreview,
+          },
+        }),
+        defineField({
           name: 'ctaPrimary',
           title: '主按钮',
           type: 'object',

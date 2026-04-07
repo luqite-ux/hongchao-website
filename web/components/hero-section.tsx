@@ -9,7 +9,7 @@ import { getLocaleFromPathname, t, withLocale } from "@/lib/i18n"
 
 const HERO_VIDEO_SRC = "/videos/hero-bg.mp4"
 
-export function HeroSection() {
+export function HeroSection({ videoSrc }: { videoSrc?: string | null }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const pathname = usePathname()
   const locale = getLocaleFromPathname(pathname || "/")
@@ -32,7 +32,7 @@ export function HeroSection() {
           className="w-full h-full object-cover"
           poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23f1f5f9' width='1920' height='1080'/%3E%3C/svg%3E"
         >
-          <source src={HERO_VIDEO_SRC} type="video/mp4" />
+          <source src={videoSrc || HERO_VIDEO_SRC} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-white/80" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/90" />

@@ -41,7 +41,7 @@ export interface HomepageData {
   featuredProducts?: HomepageFeaturedProduct[] | null;
   trustSection?: TrustSectionData | null;
   testimonials?: TestimonialItem[] | null;
-  hero?: unknown;
+  hero?: { videoUrl?: string | null } | null;
   aboutSection?: HomepageAboutSection | null;
 }
 

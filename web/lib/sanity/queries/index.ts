@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const homepageQuery = groq`
   *[_type == "homepage"][0]{
     hero{
+      "videoUrl": videoFile.asset->url,
       "eyebrow": select(
         $locale == "de" => coalesce(eyebrow_de, eyebrow),
         $locale == "es" => coalesce(eyebrow_es, eyebrow),

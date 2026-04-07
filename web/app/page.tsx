@@ -67,7 +67,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <HeroSection />
+      <HeroSection videoSrc={homepage?.hero?.videoUrl} />
       <StatsBar />
       <FeaturedProducts items={items} />
       <CustomProcess />
