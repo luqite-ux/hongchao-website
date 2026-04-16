@@ -156,9 +156,6 @@ export function Header({
                                 className="block select-none rounded-md px-3 py-2.5 leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               >
                                 <span className="font-medium">{cat.title}</span>
-                                {cat.description ? (
-                                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{cat.description}</p>
-                                ) : null}
                               </Link>
                             </NavigationMenuLink>
                           </li>
@@ -177,11 +174,6 @@ export function Header({
                                       className="block select-none rounded-md px-3 py-2 leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                                     >
                                       <span className="text-sm font-medium">{cat.title}</span>
-                                      {cat.description ? (
-                                        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                                          {cat.description}
-                                        </p>
-                                      ) : null}
                                     </Link>
                                   </NavigationMenuLink>
                                 </li>
