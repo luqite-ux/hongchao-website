@@ -149,15 +149,20 @@ export function Header({
                     <NavigationMenuContent>
                       <ul className="m-0 flex w-[min(100vw-2rem,440px)] list-none flex-col gap-0 p-3">
                         {navPrimary.map((cat) => (
-                          <li key={cat._id}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
-                                className="block select-none rounded-md px-3 py-2.5 leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                              >
-                                <span className="font-medium">{cat.title}</span>
-                              </Link>
-                            </NavigationMenuLink>
+                          <li key={cat._id} className="py-1">
+                            <div className="px-3 py-1.5 text-sm font-semibold text-foreground">{cat.title}</div>
+                            <ul className="m-0 list-none border-l border-border pl-4">
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                                    className="block select-none rounded-md px-3 py-2 text-sm leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                  >
+                                    {t(loc, "featured.viewAll")}
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            </ul>
                           </li>
                         ))}
                         {accessoryGroup.length > 0 ? (
@@ -260,14 +265,18 @@ export function Header({
                   {mobileProductsOpen && (
                     <div className="ml-4 space-y-1 border-l-2 border-primary pl-4">
                       {navPrimary.map((cat) => (
-                        <Link
-                          key={cat._id}
-                          href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
-                          className="block py-2 text-sm text-muted-foreground hover:text-primary"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {cat.title}
-                        </Link>
+                        <div key={cat._id} className="py-1">
+                          <div className="py-1 text-sm font-semibold text-foreground">{cat.title}</div>
+                          <div className="ml-3 border-l border-border pl-3">
+                            <Link
+                              href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                              className="block py-2 text-sm text-muted-foreground hover:text-primary"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {t(loc, "featured.viewAll")}
+                            </Link>
+                          </div>
+                        </div>
                       ))}
                       {accessoryGroup.length > 0 ? (
                         <div className="pt-2">
