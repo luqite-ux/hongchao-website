@@ -21,6 +21,8 @@ import type { ProductCategory } from "@/lib/product-categories"
 import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import { HeaderSearch } from "@/components/header-search"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { t, type Locale } from "@/lib/i18n"
+import { partitionProductNavCategories } from "@/lib/nav-product-categories"
 
 /** 导航：Catalog 已在首页产品区体现，不再单独栏目（按图1 v0） */
 const navigation = [
@@ -62,6 +64,8 @@ export function Header({
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false)
   const pathname = usePathname()
   const locale = (localeProp as SupportedLocale | undefined) ?? getLocaleFromPathname(pathname || "/")
+  const loc = locale as Locale
+  const { primary: navPrimary, accessoryGroup } = partitionProductNavCategories(productCategories)
 
   const companyName = settings?.companyName ?? ""
   const email = CONTACT_EMAIL
@@ -87,7 +91,9 @@ export function Header({
               </a>
             </div>
             <div className="flex items-center gap-4 text-slate-500 items-center">
-              <span className="text-sm">Since 2005 | 11 Patents | Global Service</span>
+              <span className="text-sm">
+                {t(loc, "hero.since")} | {t(loc, "header.projectsHighlight")} | {t(loc, "header.globalService")}
+              </span>
               <LanguageSwitcher className="text-slate-500 text-xs" size="sm" />
             </div>
           </div>
@@ -141,31 +147,55 @@ export function Header({
                       Products
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[500px] gap-3 p-4 md:grid-cols-2">
-                        {productCategories.map((cat) => (
+                      <ul className="m-0 flex w-[min(100vw-2rem,440px)] list-none flex-col gap-0 p-3">
+                        {navPrimary.map((cat) => (
                           <li key={cat._id}>
                             <NavigationMenuLink asChild>
                               <Link
                                 href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
-                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                className="block select-none rounded-md px-3 py-2.5 leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               >
                                 <span className="font-medium">{cat.title}</span>
                                 {cat.description ? (
-                                  <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                    {cat.description}
-                                  </p>
+                                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{cat.description}</p>
                                 ) : null}
                               </Link>
                             </NavigationMenuLink>
                           </li>
                         ))}
+                        {accessoryGroup.length > 0 ? (
+                          <li className="mt-1 border-t border-border pt-2">
+                            <div className="px-3 py-2 text-sm font-semibold text-foreground">
+                              {t(loc, "nav.accessoryGroup")}
+                            </div>
+                            <ul className="m-0 list-none border-l border-border pl-4">
+                              {accessoryGroup.map((cat) => (
+                                <li key={cat._id}>
+                                  <NavigationMenuLink asChild>
+                                    <Link
+                                      href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                                      className="block select-none rounded-md px-3 py-2 leading-snug no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                    >
+                                      <span className="text-sm font-medium">{cat.title}</span>
+                                      {cat.description ? (
+                                        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                                          {cat.description}
+                                        </p>
+                                      ) : null}
+                                    </Link>
+                                  </NavigationMenuLink>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ) : null}
                       </ul>
                       <div className="flex justify-center border-t border-border px-4 pb-4 pt-3">
                         <Link
                           href={withLocale("/products", locale)}
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/90 transition-colors"
                         >
-                          View All Products
+                          {t(loc, "featured.viewAll")}
                           <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                         </Link>
                       </div>
@@ -237,7 +267,7 @@ export function Header({
                   </button>
                   {mobileProductsOpen && (
                     <div className="ml-4 space-y-1 border-l-2 border-primary pl-4">
-                      {productCategories.map((cat) => (
+                      {navPrimary.map((cat) => (
                         <Link
                           key={cat._id}
                           href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
@@ -247,6 +277,25 @@ export function Header({
                           {cat.title}
                         </Link>
                       ))}
+                      {accessoryGroup.length > 0 ? (
+                        <div className="pt-2">
+                          <div className="py-1 text-xs font-semibold text-foreground">
+                            {t(loc, "nav.accessoryGroup")}
+                          </div>
+                          <div className="ml-3 border-l border-border pl-3">
+                            {accessoryGroup.map((cat) => (
+                              <Link
+                                key={cat._id}
+                                href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                                className="block py-2 text-sm text-muted-foreground hover:text-primary"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {cat.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   )}
                 </div>

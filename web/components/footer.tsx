@@ -6,6 +6,8 @@ import { CONTACT_PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/contact"
 import type { SiteSettings } from "@/lib/site-settings"
 import type { ProductCategory } from "@/lib/product-categories"
 import { urlForImage } from "@/lib/sanity.image"
+import { t, normalizeLocale } from "@/lib/i18n"
+import { partitionProductNavCategories } from "@/lib/nav-product-categories"
 
 /** 白底四列页脚；PRODUCTS 与 Header 下拉同源（fetchNavCategories），保证分类与链接一致 */
 
@@ -62,6 +64,8 @@ export function Footer({
 }) {
   const address = settings?.contact?.address ?? DEFAULT_ADDRESS
   const social = settings?.social
+  const loc = normalizeLocale(locale)
+  const { primary: navPrimary, accessoryGroup } = partitionProductNavCategories(productCategories)
   const socialLinks: Array<{
     name: string
     href?: string
@@ -168,18 +172,39 @@ export function Footer({
             <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-4">
               PRODUCTS
             </h3>
-            <ul className="space-y-3">
+            <ul className="m-0 list-none space-y-3 p-0">
               {productCategories.length > 0 ? (
-                productCategories.map((cat) => (
-                  <li key={cat._id}>
-                    <Link
-                      href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
-                      className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors"
-                    >
-                      {cat.title}
-                    </Link>
-                  </li>
-                ))
+                <>
+                  {navPrimary.map((cat) => (
+                    <li key={cat._id}>
+                      <Link
+                        href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                        className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors"
+                      >
+                        {cat.title}
+                      </Link>
+                    </li>
+                  ))}
+                  {accessoryGroup.length > 0 ? (
+                    <li className="pt-1">
+                      <div className="text-sm font-semibold text-slate-800 mb-2">
+                        {t(loc, "nav.accessoryGroup")}
+                      </div>
+                      <ul className="m-0 list-none space-y-2 border-l border-slate-200 pl-4">
+                        {accessoryGroup.map((cat) => (
+                          <li key={cat._id}>
+                            <Link
+                              href={withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale)}
+                              className="text-sm text-slate-600 hover:text-[#FBA026] transition-colors"
+                            >
+                              {cat.title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ) : null}
+                </>
               ) : (
                 <li>
                   <Link

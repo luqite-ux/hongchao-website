@@ -31,6 +31,22 @@ const dict: Dict = {
   "nav.about": { en: "About", de: "Über uns", es: "Acerca de" },
   "nav.contact": { en: "Contact", de: "Kontakt", es: "Contacto" },
   "cta.requestQuote": { en: "Request a Quote", de: "Angebot anfordern", es: "Solicitar presupuesto" },
+  "header.projectsHighlight": {
+    en: "10000+ Projects",
+    de: "10000+ Projekte",
+    es: "10000+ proyectos",
+  },
+  "header.globalService": {
+    en: "Global Service",
+    de: "Weltweiter Service",
+    es: "Servicio global",
+  },
+  /** 产品下拉/页脚：二级分组标题（非链接） */
+  "nav.accessoryGroup": {
+    en: "Components & spares",
+    de: "Komponenten & Ersatzteile",
+    es: "Componentes y repuestos",
+  },
 
   // Hero
   "hero.since": { en: "Since 2005", de: "Seit 2005", es: "Desde 2005" },
