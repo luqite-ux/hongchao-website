@@ -142,7 +142,7 @@ export function Header({
                 ) : item.isProducts ? (
                   <NavigationMenuItem key={item.name}>
                     <NavigationMenuTrigger
-                      className="bg-transparent text-slate-800 hover:text-[#FBA026] data-[state=open]:text-[#FBA026]"
+                      className="bg-transparent text-slate-800 hover:bg-[#F6A12A] hover:text-white data-[state=open]:bg-[#F6A12A] data-[state=open]:text-white"
                     >
                       Products
                     </NavigationMenuTrigger>
