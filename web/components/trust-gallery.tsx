@@ -61,13 +61,13 @@ export function TrustGallery({ data }: TrustGalleryProps) {
 
         {activeTab === "exhibition" && (
           exhibitionImages.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {exhibitionImages.map((src, i) => (
                 <div
                   key={src}
                   className="aspect-[4/3] relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-sm"
                 >
-                  <Image src={src} alt={`Exhibition ${i + 1}`} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                  <Image src={src} alt={`Exhibition ${i + 1}`} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
                 </div>
               ))}
             </div>
@@ -80,13 +80,13 @@ export function TrustGallery({ data }: TrustGalleryProps) {
 
         {activeTab === "client-visit" && (
           clientVisitImages.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {clientVisitImages.map((src, i) => (
                 <div
                   key={src}
                   className="aspect-[4/3] relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-sm"
                 >
-                  <Image src={src} alt={`Client visit ${i + 1}`} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                  <Image src={src} alt={`Client visit ${i + 1}`} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
                 </div>
               ))}
             </div>
@@ -99,7 +99,7 @@ export function TrustGallery({ data }: TrustGalleryProps) {
 
         {activeTab === "inspection" && (
           inspectionImages.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {inspectionImages.map((src, i) => (
                 <div
                   key={`inspection-${i}-${src}`}
@@ -110,7 +110,7 @@ export function TrustGallery({ data }: TrustGalleryProps) {
                     alt={`Customer inspection ${i + 1}`}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                 </div>
               ))}
