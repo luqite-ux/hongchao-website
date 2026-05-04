@@ -8,6 +8,11 @@ import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/
 import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
+// 详情页内部使用了 headers()（getServerLocale），
+// Next.js 16 下与 generateStaticParams 共存会抛 DYNAMIC_SERVER_USAGE，
+// 强制按需服务端渲染以兼容动态 locale。
+export const dynamic = "force-dynamic"
+
 type Props = {
   params: Promise<{ category: string; product: string }>
 }
