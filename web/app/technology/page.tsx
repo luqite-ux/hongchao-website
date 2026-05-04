@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { sanityClient } from "@/lib/sanity.client"
 import { patentsQuery } from "@/lib/sanity.queries"
-import { urlForProductImage } from "@/lib/sanity.image"
+import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
@@ -208,21 +208,24 @@ export default async function TechnologyPage() {
             ) : (
               patents.map((patent) => (
                 <div key={patent._id} className="bg-slate-50 rounded-lg overflow-hidden border border-slate-100 hover:shadow-md transition-shadow">
-                  {patent.image ? (
-                    <div className="aspect-[4/3] bg-white relative">
-                      <div className="absolute inset-4 flex items-center justify-center">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={urlForProductImage(patent.image).width(800).url()}
-                            alt={patent.title}
-                            fill
-                            className="object-contain"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
+                  {(() => {
+                    const url = safeProductImageUrl(patent.image, 800)
+                    return url ? (
+                      <div className="aspect-[4/3] bg-white relative">
+                        <div className="absolute inset-4 flex items-center justify-center">
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={url}
+                              alt={patent.title}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : null}
+                    ) : null
+                  })()}
                   <div className="flex items-start gap-4 p-4">
                     <div className="h-10 w-10 rounded-lg bg-[#FBA026]/10 flex items-center justify-center flex-shrink-0">
                       <FileText className="h-5 w-5 text-[#FBA026]" />

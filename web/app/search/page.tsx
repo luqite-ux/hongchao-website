@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Search as SearchIcon, ArrowRight } from "lucide-react"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsQuery } from "@/lib/sanity.queries"
-import { urlForProductImage } from "@/lib/sanity.image"
+import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
@@ -88,11 +88,7 @@ export default async function SearchPage({
                       <div className="absolute inset-4 flex items-center justify-center">
                         <div className="relative w-full h-full">
                           <Image
-                            src={
-                              p.mainImage
-                                ? urlForProductImage(p.mainImage).width(600).url()
-                                : "/placeholder.svg"
-                            }
+                            src={safeProductImageUrl(p.mainImage, 600) ?? "/placeholder.svg"}
                             alt={p.title ?? ""}
                             fill
                             className="object-contain group-hover:scale-105 transition-transform"

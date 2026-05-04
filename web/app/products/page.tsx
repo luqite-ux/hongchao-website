@@ -9,7 +9,7 @@ import { TrustSection } from "@/components/trust-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
 import { navCategoriesQuery, productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
-import { urlForProductImage } from "@/lib/sanity.image"
+import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 export const metadata: Metadata = {
@@ -129,7 +129,7 @@ export default async function ProductsPage() {
                   <div className="aspect-square bg-white relative overflow-hidden flex items-center justify-center p-4" style={{ boxShadow: "inset 0 -1px 0 0 #e2e8f0" }}>
                     <div className="relative w-full h-full min-h-[180px]">
                       <Image
-                        src={p.mainImage ? urlForProductImage(p.mainImage).width(1200).url() : "/placeholder.svg"}
+                        src={safeProductImageUrl(p.mainImage, 1200) ?? "/placeholder.svg"}
                         alt={p.title}
                         fill
                         className="object-contain group-hover:scale-105 transition-transform duration-300"
@@ -176,17 +176,20 @@ export default async function ProductsPage() {
                 <Card key={category._id} className="overflow-hidden border-slate-100 bg-white hover:shadow-lg transition-shadow">
                   <div className={`grid lg:grid-cols-2 ${index % 2 === 1 ? "lg:flex-row-reverse" : ""}`}>
                     <div className={`aspect-[16/10] lg:aspect-auto bg-slate-50 flex items-center justify-center relative overflow-hidden ${index % 2 === 1 ? "lg:order-2" : ""}`}>
-                      {category.image ? (
-                        <Image
-                          src={urlForProductImage(category.image).width(1200).url()}
-                          alt={category.title}
-                          fill
-                          className="object-contain p-8"
-                          sizes="(max-width: 1024px) 100vw, 50vw"
-                        />
-                      ) : (
-                        <Factory className="h-32 w-32 text-[#FBA026]/30" />
-                      )}
+                      {(() => {
+                        const url = safeProductImageUrl(category.image, 1200)
+                        return url ? (
+                          <Image
+                            src={url}
+                            alt={category.title}
+                            fill
+                            className="object-contain p-8"
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                          />
+                        ) : (
+                          <Factory className="h-32 w-32 text-[#FBA026]/30" />
+                        )
+                      })()}
                     </div>
                     <div className={`p-8 lg:p-10 ${index % 2 === 1 ? "lg:order-1" : ""}`}>
                       <CardHeader className="p-0 mb-4">

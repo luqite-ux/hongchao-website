@@ -5,7 +5,7 @@ import { ArrowRight, ArrowLeft, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sanityClient } from "@/lib/sanity.client"
 import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
-import { urlForProductImage } from "@/lib/sanity.image"
+import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 type Props = {
@@ -138,25 +138,27 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const gallery = (data.gallery ?? []) as { _type?: string; asset?: unknown }[]
   const specsList = (data.specs ?? []) as { label?: string; value?: string }[]
-  const mainImageEntry = data.mainImage
-    ? { url: urlForProductImage(data.mainImage).width(1200).url(), alt: data.title }
-    : { url: "/placeholder.svg", alt: data.title }
-  const galleryEntries = gallery.map((img, i) => ({
-    url: urlForProductImage(img).width(1200).url(),
-    alt: `${data.title} view ${i + 1}`,
-  }))
+  const mainImageUrl = safeProductImageUrl(data.mainImage, 1200)
+  const mainImageEntry = {
+    url: mainImageUrl ?? "/placeholder.svg",
+    alt: data.title ?? "Product",
+  }
+  const galleryEntries = gallery
+    .map((img, i) => {
+      const url = safeProductImageUrl(img, 1200)
+      return url ? { url, alt: `${data.title ?? "Product"} view ${i + 1}` } : null
+    })
+    .filter((x): x is { url: string; alt: string } => x !== null)
 
   const technicalImages = (data.technicalImages ?? []) as { _type?: string; asset?: unknown }[]
   const technicalImageEntries = technicalImages
-    .map((img, i) => ({
-      url: urlForProductImage(img).width(2200).url(),
-      alt: `${data.title} technical render ${i + 1}`,
-    }))
-    .filter((x) => x.url)
+    .map((img, i) => {
+      const url = safeProductImageUrl(img, 2200)
+      return url ? { url, alt: `${data.title ?? "Product"} technical render ${i + 1}` } : null
+    })
+    .filter((x): x is { url: string; alt: string } => x !== null)
 
-  const packagingImageUrl = data.packagingImage
-    ? urlForProductImage(data.packagingImage).width(2200).url()
-    : undefined
+  const packagingImageUrl = safeProductImageUrl(data.packagingImage, 2200) ?? undefined
 
   const videoRef = data.video as
     | { source?: string; videoId?: string; url?: string; videoFileUrl?: string; videoFileAsset?: { url?: string }; title?: string; coverImage?: unknown; description?: string }
@@ -169,7 +171,7 @@ export default async function ProductDetailPage({ params }: Props) {
         ? videoRef.url
         : undefined
 
-  const coverImageUrl = videoRef?.coverImage ? urlForProductImage(videoRef.coverImage).width(800).url() : undefined
+  const coverImageUrl = safeProductImageUrl(videoRef?.coverImage, 800) ?? undefined
 
   const industrialTags = ["High Precision", "24/7 Reliability", "Fast Lead Time", "Customized Solutions"]
 
@@ -443,11 +445,7 @@ export default async function ProductDetailPage({ params }: Props) {
                       <div className="absolute inset-4 flex items-center justify-center">
                         <div className="relative w-full h-full">
                           <Image
-                            src={
-                              related.mainImage
-                                ? urlForProductImage(related.mainImage).width(1200).url()
-                                : "/placeholder.svg"
-                            }
+                            src={safeProductImageUrl(related.mainImage, 1200) ?? "/placeholder.svg"}
                             alt={related.title}
                             fill
                             className="object-contain group-hover:scale-105 transition-transform duration-500"

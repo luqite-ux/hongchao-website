@@ -8,7 +8,7 @@ import { TrustSection } from "@/components/trust-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { sanityClient } from "@/lib/sanity.client"
 import { productsByCategorySlugQuery, productCategoriesQuery } from "@/lib/sanity.queries"
-import { urlForProductImage } from "@/lib/sanity.image"
+import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 // 每次请求从 Sanity 拉取最新数据，避免构建时静态快照只含当时的产品数量
@@ -104,9 +104,7 @@ export default async function CategoryPage({ params }: Props) {
   }[]
 
   const heroImageSource = data.products?.[0]?.mainImage
-  const heroImageUrl = heroImageSource
-    ? urlForProductImage(heroImageSource).width(1600).url()
-    : "/placeholder.svg"
+  const heroImageUrl = safeProductImageUrl(heroImageSource, 1600) ?? "/placeholder.svg"
 
   const categoryTitle =
     (data.title as string) ??
@@ -183,11 +181,7 @@ export default async function CategoryPage({ params }: Props) {
                     <div className="aspect-square bg-white relative overflow-hidden flex items-center justify-center p-4" style={{ boxShadow: "inset 0 -1px 0 0 #e2e8f0" }}>
                       <div className="relative w-full h-full min-h-[160px]">
                         <Image
-                          src={
-                            p.mainImage
-                              ? urlForProductImage(p.mainImage).width(1200).url()
-                              : "/placeholder.svg"
-                          }
+                          src={safeProductImageUrl(p.mainImage, 1200) ?? "/placeholder.svg"}
                           alt={p.title}
                           fill
                           className="object-contain group-hover:scale-105 transition-transform duration-300"
