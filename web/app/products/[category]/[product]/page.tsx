@@ -30,6 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${data.title} - HONGCHAO Industrial Feeders`,
     description: (data.excerpt as string) ?? undefined,
+    alternates: { canonical: `https://www.hongchaoautomation.cn/products/${category}/${product}` },
+    openGraph: { title: data.title, description: data.excerpt || undefined, type: "website", url: `https://www.hongchaoautomation.cn/products/${category}/${product}`, images: data.mainImage ? [{ url: data.mainImage }] : undefined },
   }
 }
 
@@ -172,6 +174,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: data.title, description: data.excerpt || undefined, image: [data.mainImage, ...(data.gallery || [])].filter(Boolean), category: categoryTitle, url: `https://www.hongchaoautomation.cn/products/${category}/${product}` }) }} />
       {/* SECTION A: Hero (Left Text, Right Video Only) */}
       <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-white to-slate-50">
         {/* 工业几何网格背景（最底层 z-0） */}

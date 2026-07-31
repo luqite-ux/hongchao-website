@@ -14,6 +14,7 @@ import { urlForImage } from "@/lib/sanity.image";
 import { getServerLocale } from "@/lib/server-locale";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const SITE_URL = "https://www.hongchaoautomation.cn";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -26,11 +27,14 @@ export async function generateMetadata(): Promise<Metadata> {
     : undefined;
 
   return {
+    metadataBase: new URL(SITE_URL),
     title,
     description,
+    alternates: { canonical: SITE_URL },
     openGraph: og
-      ? { title, description, images: [{ url: og }] }
-      : { title, description },
+      ? { title, description, url: SITE_URL, type: "website", images: [{ url: og }] }
+      : { title, description, url: SITE_URL, type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: og ? [og] : undefined },
   };
 }
 

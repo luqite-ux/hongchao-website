@@ -45,7 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    openGraph: ogUrl ? { images: [{ url: ogUrl }] } : undefined,
+    alternates: { canonical: `https://www.hongchaoautomation.cn/blog/${slug}` },
+    openGraph: { title, description, type: "article", url: `https://www.hongchaoautomation.cn/blog/${slug}`, images: ogUrl ? [{ url: ogUrl }] : undefined },
   }
 }
 
@@ -73,6 +74,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <div className="flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: post.title, description: post.excerpt || undefined, image: post.coverImage ? [post.coverImage] : undefined, datePublished: post.publishedAt, mainEntityOfPage: `https://www.hongchaoautomation.cn/blog/${slug}` }) }} />
       <section className="bg-secondary border-b border-border py-10">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link href="/blog" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors">
