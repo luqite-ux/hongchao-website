@@ -34,12 +34,12 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createClient(url, anonKey, { auth: { persistSession: false } });
-    const { data, error } = await supabase.from("inquiries").insert(row).select("id").single();
+    const { error } = await supabase.from("inquiries").insert(row);
     if (error) throw error;
-    return NextResponse.json({ ok: true, id: data.id });
+    return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error("[inquiry] Supabase insert failed:", e);
-    const message = e instanceof Error ? e.message : String(e);
+    const message = e instanceof Error ? e.message : typeof e === "object" && e && "message" in e ? String(e.message) : String(e);
+    console.error("[inquiry] Supabase insert failed:", { tenantId, message });
     return NextResponse.json(
       { ok: false, error: "Failed to save inquiry", detail: message },
       { status: 502 }
