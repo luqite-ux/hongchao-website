@@ -2,16 +2,15 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
-import { sanityClient } from "@/lib/sanity.client"
-import { postBySlugQuery } from "@/lib/sanity.queries"
-import { urlForImage } from "@/lib/sanity.image"
-import { PortableTextFallback, getPortableTextBlockTexts } from "@/lib/portable-text"
+import { getArticleBySlug } from "@/lib/articles-db"
 import { Badge } from "@/components/ui/badge"
 import { getServerLocale } from "@/lib/server-locale"
 
 type Props = {
   params: Promise<{ slug: string }>
 }
+export const revalidate = 60
+export const dynamicParams = true
 
 type PostDetail = {
   _id: string
@@ -19,8 +18,8 @@ type PostDetail = {
   slug?: string
   excerpt?: string
   publishedAt?: string
-  coverImage?: unknown
-  content?: unknown
+  coverImage?: string | null
+  content?: string
   seo?: {
     title?: string
     description?: string
@@ -31,22 +30,17 @@ type PostDetail = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const locale = await getServerLocale()
-  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
+  const post = await getArticleBySlug(slug, locale)
 
   if (!post) return { title: "Post Not Found" }
 
-  const title = post.seo?.title || post.title || "Blog"
+  const title = post.title || "Blog"
   const description =
-    post.seo?.description ||
     post.excerpt ||
-    getPortableTextBlockTexts(post.content).join(" ").slice(0, 160) ||
+    post.content?.replace(/<[^>]+>/g, " ").slice(0, 160) ||
     undefined
 
-  const ogUrl = post.seo?.ogImage
-    ? urlForImage(post.seo.ogImage).width(1200).height(630).fit("max").auto("format").url()
-    : post.coverImage
-      ? urlForImage(post.coverImage).width(1200).height(630).fit("max").auto("format").url()
-      : undefined
+  const ogUrl = post.coverImage || undefined
 
   return {
     title,
@@ -58,13 +52,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getServerLocale()
-  const post = await sanityClient.fetch<PostDetail>(postBySlugQuery, { slug, locale }, { next: { revalidate: 60 } })
+  const post = await getArticleBySlug(slug, locale)
 
   if (!post) {
     return (
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
         <p className="text-foreground font-semibold">未找到文章</p>
-        <p className="text-sm text-muted-foreground mt-2">请确认该文章已在 Sanity 中创建并发布。</p>
+        <p className="text-sm text-muted-foreground mt-2">请确认该文章已在统一管理后台中发布。</p>
         <div className="mt-6">
           <Link href="/blog" className="text-primary hover:text-[#D4871F] transition-colors">
             返回 Blog
@@ -74,9 +68,7 @@ export default async function BlogDetailPage({ params }: Props) {
     )
   }
 
-  const coverUrl = post.coverImage
-    ? urlForImage(post.coverImage).width(1600).height(900).fit("max").auto("format").url()
-    : ""
+  const coverUrl = post.coverImage || ""
   const date = post.publishedAt ? new Date(post.publishedAt) : null
 
   return (
@@ -113,9 +105,7 @@ export default async function BlogDetailPage({ params }: Props) {
             </div>
           ) : null}
 
-          <article className="prose prose-lg max-w-none">
-            <PortableTextFallback value={post.content} />
-          </article>
+          <article className="prose prose-lg max-w-none article-prose" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
         </div>
       </section>
     </div>

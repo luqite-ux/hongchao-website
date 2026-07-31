@@ -6,29 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { TrustSection } from "@/components/trust-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
-import { sanityClient } from "@/lib/sanity.client"
-import { productsByCategorySlugQuery, productCategoriesQuery } from "@/lib/sanity.queries"
+import { getCategoryBySlug, getProductCatalog } from "@/lib/products-db"
 import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 // 每次请求从 Sanity 拉取最新数据，避免构建时静态快照只含当时的产品数量
-export const dynamic = "force-dynamic"
+export const revalidate = 60
+export const dynamicParams = true
 
 type Props = {
   params: Promise<{ category: string }>
 }
 
-async function safeSanityFetch<T>(query: string, params: Record<string, unknown>) {
-  try {
-    return await sanityClient.fetch<T>(query, params, { next: { revalidate: 60 } })
-  } catch {
-    return null
-  }
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
-  const data = await safeSanityFetch<{ title?: string; description?: string }>(productsByCategorySlugQuery, { category })
+  const data = await getCategoryBySlug(category, "en")
 
   if (!data) {
     return { title: "Category Not Found" }
@@ -41,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const categories = (await safeSanityFetch<any[]>(productCategoriesQuery, {})) ?? []
+  const categories = (await getProductCatalog("en"))?.categories ?? []
   return categories.map((c: { slug?: string | null; _id: string }) => ({
     category: c.slug ?? c._id,
   })).filter((x: { category: string }) => x.category)
@@ -51,7 +43,7 @@ export default async function CategoryPage({ params }: Props) {
   const { category } = await params
   const locale = await getServerLocale()
 
-  const data = await safeSanityFetch<any>(productsByCategorySlugQuery, { category, locale })
+  const data = await getCategoryBySlug(category, locale)
   const categoryTitleFallback = category
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -74,7 +66,7 @@ export default async function CategoryPage({ params }: Props) {
                 {categoryTitleFallback}
               </h1>
               <p className="mt-6 text-lg text-slate-600 leading-relaxed">
-                内容暂时不可用：当前环境无法连接 Sanity API（请检查网络/代理设置后刷新）。
+                内容暂时不可用，请稍后刷新。
               </p>
               <div className="mt-10">
                 <Button

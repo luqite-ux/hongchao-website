@@ -3,32 +3,25 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, ArrowLeft, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { sanityClient } from "@/lib/sanity.client"
-import { productBySlugsQuery, relatedProductsQuery, productsQuery } from "@/lib/sanity.queries"
+import { getProductBySlugs, getProductCatalog } from "@/lib/products-db"
 import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
 // 详情页内部使用了 headers()（getServerLocale），
 // Next.js 16 下与 generateStaticParams 共存会抛 DYNAMIC_SERVER_USAGE，
 // 强制按需服务端渲染以兼容动态 locale。
+export const revalidate = 60
+export const dynamicParams = true
 export const dynamic = "force-dynamic"
 
 type Props = {
   params: Promise<{ category: string; product: string }>
 }
 
-async function safeSanityFetch<T>(query: string, params: Record<string, unknown>) {
-  try {
-    return await sanityClient.fetch<T>(query, params)
-  } catch {
-    return null
-  }
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, product } = await params
   const locale = await getServerLocale()
-  const data = await safeSanityFetch<{ title?: string; excerpt?: string }>(productBySlugsQuery, { category, product, locale })
+  const data = await getProductBySlugs(category, product, locale)
 
   if (!data) {
     return { title: "Product Not Found" }
@@ -41,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const products = (await safeSanityFetch<any[]>(productsQuery, {})) ?? []
+  const products = (await getProductCatalog("en"))?.products ?? []
   return products
     .map((p) => ({
       category: p?.category?.slug ?? "",
@@ -54,7 +47,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const { category, product } = await params
   const locale = await getServerLocale()
 
-  const data = await safeSanityFetch<any>(productBySlugsQuery, { category, product, locale })
+  const data = await getProductBySlugs(category, product, locale)
   if (!data) {
     // Sanity 网络不可用时，避免整页 500，提供可预览的占位 UI
     const fallbackTitle = product
@@ -93,7 +86,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   {fallbackTitle}
                 </h1>
                 <p className="mt-5 text-lg text-slate-600 leading-relaxed max-w-xl">
-                  内容暂时不可用：当前环境无法连接 Sanity API（请检查网络/代理设置后刷新）。
+                  内容暂时不可用，请稍后刷新。
                 </p>
                 <div className="mt-10">
                   <Button
@@ -127,12 +120,7 @@ export default async function ProductDetailPage({ params }: Props) {
     )
   }
 
-  const related = await safeSanityFetch<any[]>(relatedProductsQuery, {
-    category,
-    locale,
-    excludeId: data._id,
-  })
-  const relatedList = Array.isArray(related) ? related : []
+  const relatedList = Array.isArray(data.related) ? data.related : []
 
   const categoryTitle =
     (data.category as { title?: string } | null)?.title ??

@@ -43,6 +43,7 @@ export function urlForProductImage(source: SanityImageSource) {
  * 用于产品详情等数据可能不完整的场景。
  */
 export function safeProductImageUrl(source: unknown, width = 1200): string | null {
+  if (typeof source === "string" && /^https:\/\//i.test(source)) return source;
   if (!isValidSanityImageSource(source)) return null;
   try {
     return urlForProductImage(source).width(width).url();

@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { TrustSection } from "@/components/trust-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
-import { sanityClient } from "@/lib/sanity.client"
-import { navCategoriesQuery, productCategoriesQuery, productsQuery } from "@/lib/sanity.queries"
+import { getProductCatalog } from "@/lib/products-db"
 import { safeProductImageUrl } from "@/lib/sanity.image"
 import { getServerLocale } from "@/lib/server-locale"
 
@@ -34,33 +33,17 @@ type Product = {
   category: { title: string; slug: string | null } | null
 }
 
-async function safeSanityFetch<T>(query: string, params: Record<string, unknown>) {
-  try {
-    return await sanityClient.fetch<T>(query, params, { next: { revalidate: 60 } })
-  } catch {
-    return null
-  }
-}
+export const revalidate = 60
 
 export default async function ProductsPage() {
   const locale = await getServerLocale()
-  const [categoriesRes, productsRes] = await Promise.all([
-    safeSanityFetch<Category[]>(productCategoriesQuery, { locale }),
-    safeSanityFetch<Product[]>(productsQuery, { locale }),
-  ])
-  const categories = categoriesRes ?? []
-  const products = productsRes ?? []
-
-  // 分类顺序：优先按首页 featuredCategories 顺序；其余分类按 title 追加在后
-  const featuredRes = await safeSanityFetch<{ featuredCategories?: Category[] | null }>(navCategoriesQuery, { locale })
-  const featured = featuredRes?.featuredCategories?.filter(Boolean) ?? []
-  const featuredIdSet = new Set(featured.map((c) => c._id))
-  const rest = categories.filter((c) => !featuredIdSet.has(c._id))
-  rest.sort((a, b) => (a.title || "").localeCompare(b.title || ""))
-  const orderedCategories = featured.length ? [...featured, ...rest] : categories
+  const catalog = await getProductCatalog(locale)
+  const categories = (catalog?.categories ?? []) as Category[]
+  const products = (catalog?.products ?? []) as Product[]
+  const orderedCategories = categories
 
   const productsWithCategory = products.filter((p) => p.category?.slug)
-  const sanityOffline = !categoriesRes || !productsRes
+  const sanityOffline = !catalog
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -101,7 +84,7 @@ export default async function ProductsPage() {
         <section className="py-10 bg-white border-b border-slate-100">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
-              当前环境无法连接 Sanity API，列表内容已使用空数据回退（页面可正常预览样式）。
+              当前环境暂时无法读取产品数据库，请稍后刷新。
             </div>
           </div>
         </section>

@@ -54,7 +54,7 @@ export default async function HomePage() {
         description: cat.description ?? DEFAULT_FEATURED[i]!.description,
         tag: FEATURED_TAGS[i] ?? "Featured",
         href: withLocale(cat.slug ? `/products/${cat.slug}` : "/products", locale),
-        imageUrl: cat.image ? urlForImage(cat.image).width(480).height(360).url() : null,
+        imageUrl: typeof cat.image === "string" ? cat.image : cat.image ? urlForImage(cat.image as never).width(480).height(360).url() : null,
       })
     } else {
       items.push(DEFAULT_FEATURED[i]!)

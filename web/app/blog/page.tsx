@@ -1,10 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { groq } from "next-sanity"
-import { sanityClient } from "@/lib/sanity.client"
-import { postsQuery } from "@/lib/sanity.queries"
-import { urlForImage } from "@/lib/sanity.image"
+import { getPublishedArticles } from "@/lib/articles-db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getServerLocale } from "@/lib/server-locale"
@@ -13,6 +10,7 @@ export const metadata: Metadata = {
   title: "Blog - Insights & Updates",
   description: "Read HONGCHAO's latest insights on parts feeding, automation, and engineering best practices.",
 }
+export const revalidate = 60
 
 type PostListItem = {
   _id: string
@@ -25,7 +23,7 @@ type PostListItem = {
 
 export default async function BlogPage() {
   const locale = await getServerLocale()
-  const posts = await sanityClient.fetch<PostListItem[]>(postsQuery, { locale }, { next: { revalidate: 60 } })
+  const posts = await getPublishedArticles(locale)
 
   return (
     <div className="flex flex-col">
@@ -47,9 +45,7 @@ export default async function BlogPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((p) => {
                 const href = p.slug ? `/blog/${p.slug}` : "#"
-                const imgUrl = p.coverImage
-                  ? urlForImage(p.coverImage).width(1200).height(675).fit("max").auto("format").url()
-                  : ""
+                const imgUrl = typeof p.coverImage === "string" ? p.coverImage : ""
                 const date = p.publishedAt ? new Date(p.publishedAt) : null
 
                 return (
@@ -87,7 +83,7 @@ export default async function BlogPage() {
             <div className="text-center py-16 border border-border rounded-lg bg-secondary/40">
               <p className="text-foreground font-semibold">暂无内容</p>
               <p className="text-sm text-muted-foreground mt-2">
-                你可以在 Sanity Studio 中创建并发布 `post` 文档，这里会自动展示。
+                你可以在统一管理后台中创建并发布文章，这里会自动展示。
               </p>
             </div>
           )}
