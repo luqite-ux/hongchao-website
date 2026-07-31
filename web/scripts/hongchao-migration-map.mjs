@@ -30,8 +30,15 @@ function portableTextToHtml(value) {
   if (!Array.isArray(value)) return ''
   return value.map((block) => {
     if (block?._type !== 'block') return ''
-    const text = (block.children || []).map((child) => String(child?.text || '')).join('')
-      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    const text = (block.children || []).map((child) => {
+      let span = String(child?.text || '')
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      for (const mark of child?.marks || []) {
+        if (mark === 'strong') span = `<strong>${span}</strong>`
+        if (mark === 'em') span = `<em>${span}</em>`
+      }
+      return span
+    }).join('')
     if (!text) return ''
     const tag = /^h[1-6]$/.test(block.style) ? block.style : 'p'
     return `<${tag}>${text}</${tag}>`

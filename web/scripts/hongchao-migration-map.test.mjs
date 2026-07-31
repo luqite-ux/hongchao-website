@@ -38,6 +38,22 @@ test('category and article mapping preserve slugs and publication data', () => {
   assert.equal(article.published_at, '2026-01-02T00:00:00.000Z')
 })
 
+test('article mapping preserves Portable Text headings and inline emphasis', () => {
+  const article = mapSanityPost({
+    _id: 'post-rich', title: 'Rich guide', slug: 'rich-guide', publishedAt: '2026-01-02T00:00:00Z',
+    content: [
+      { _type: 'block', style: 'h2', children: [{ text: 'Section', marks: ['strong'] }] },
+      { _type: 'block', style: 'normal', children: [
+        { text: 'Use ', marks: [] },
+        { text: 'care', marks: ['em'] },
+        { text: ' and verify.', marks: [] },
+      ] },
+    ],
+  }, TENANT)
+  assert.match(article.content, /<h2><strong>Section<\/strong><\/h2>/)
+  assert.match(article.content, /<p>Use <em>care<\/em> and verify\.<\/p>/)
+})
+
 test('mapping rejects missing slug, foreign tenant, and relative images', () => {
   assert.throws(() => mapSanityProduct({ _id: 'p', title: 'No slug', categorySlug: 'x' }, TENANT), /slug/)
   assert.throws(() => mapSanityCategory({ _id: 'c', title: 'X', slug: 'x' }, 'wrong'), /tenant/)

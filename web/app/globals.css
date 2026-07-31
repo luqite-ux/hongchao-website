@@ -176,3 +176,24 @@
 .gp-market-dot:hover {
   r: 6px;
 }
+
+.article-prose p {
+  margin: 0 0 1rem;
+  line-height: 1.75;
+}
+
+.article-prose h2,
+.article-prose h3 {
+  color: #0f172a;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 2rem 0 0.75rem;
+}
+
+.article-prose h2 {
+  font-size: 1.75rem;
+}
+
+.article-prose h3 {
+  font-size: 1.35rem;
+}
