@@ -100,7 +100,7 @@ const turnkey = [
   "Robot and PLC integration",
   "Installation and commissioning",
   "Operator training and documentation",
-  "Warranty and ongoing support",
+  "After-sales service coordination",
 ]
 
 export default function SolutionsPage() {
@@ -278,8 +278,8 @@ export default function SolutionsPage() {
                   <p className="text-slate-500">Parts Shipping</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-[#FBA026]">1yr</p>
-                  <p className="text-slate-500">Standard Warranty</p>
+                  <p className="text-3xl font-bold text-[#FBA026]">Project</p>
+                  <p className="text-slate-500">Service Planning</p>
                 </div>
               </div>
             </div>

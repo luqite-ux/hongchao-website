@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
+    "test:content": "node --test tests/public-content-policy.test.mjs",
     "start": "next start -p 3001"
   },
   "dependencies": {
