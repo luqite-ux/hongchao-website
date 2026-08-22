@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { InquiryCaptchaField } from "@/components/inquiry-captcha-field";
 
 /** 阶段五：精简为 公司、姓名、电话、邮箱、简要需求 */
 export function ContactForm({ companyName }: { companyName: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaRefreshKey, setCaptchaRefreshKey] = useState(0);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,6 +21,7 @@ export function ContactForm({ companyName }: { companyName: string }) {
     const phone = (form.querySelector("#phone") as HTMLInputElement)?.value?.trim() ?? "";
     const email = (form.querySelector("#email") as HTMLInputElement)?.value?.trim() ?? "";
     const message = (form.querySelector("#message") as HTMLInputElement)?.value?.trim() ?? "";
+    const formData = new FormData(form);
 
     if (!email || !message) {
       toast.error("Please fill in email and brief requirements.");
@@ -36,18 +39,24 @@ export function ContactForm({ companyName }: { companyName: string }) {
           phone: phone || undefined,
           company: company || undefined,
           message,
+          captchaScope: String(formData.get("captchaScope") ?? ""),
+          captchaToken: String(formData.get("captchaToken") ?? ""),
+          captchaAnswer: String(formData.get("captchaAnswer") ?? ""),
           sourcePage: typeof window !== "undefined" ? window.location.href : undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        setCaptchaRefreshKey((current) => current + 1);
         toast.error(data.error || "Submission failed. Please try again.");
         return;
       }
       toast.success("Inquiry sent. We'll get back to you within 24 hours.");
       form.reset();
+      setCaptchaRefreshKey((current) => current + 1);
     } catch {
+      setCaptchaRefreshKey((current) => current + 1);
       toast.error("Network error. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -95,6 +104,8 @@ export function ContactForm({ companyName }: { companyName: string }) {
           I agree to receive communications from {companyName}. You can unsubscribe at any time.
         </Label>
       </div>
+
+      <InquiryCaptchaField refreshKey={captchaRefreshKey} />
 
       <Button
         type="submit"

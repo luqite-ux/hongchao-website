@@ -43,6 +43,7 @@ function XIcon(props: { className?: string }) {
 
 const DEFAULT_ADDRESS =
   "No.81 CaiXing Road, LinHu Town, WuZhong District, SuZhou City, China"
+const VERIFIED_LEGAL_NAME = "Suzhou Hongchao Automation Equipment Co., Ltd."
 
 function withLocale(href: string, locale: string) {
   if (!href.startsWith("/")) return href
@@ -81,6 +82,7 @@ export function Footer({
 
   const logoSource = settings?.logoSmall ?? settings?.logo
   const logoUrl = logoSource ? urlForImage(logoSource).width(80).height(80).fit("max").auto("format").url() : ""
+  const footerCompanyName = VERIFIED_LEGAL_NAME.replace(/[.\s]+$/, "")
 
   return (
     <footer className="bg-white border-t border-slate-200" aria-labelledby="footer-heading">
@@ -92,17 +94,17 @@ export function Footer({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
           {/* 公司信息 */}
           <div className="lg:col-span-2">
-            <Link href={withLocale("/", locale)} className="inline-flex items-center gap-2 mb-6">
+            <Link href={withLocale("/", locale)} aria-label="Suzhou Hongchao Automation Equipment home" className="inline-flex items-center gap-3 mb-6">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
                   alt={settings?.companyName ? `${settings.companyName} logo` : "Hongchao logo"}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-lg object-contain bg-white shrink-0"
+                  width={52}
+                  height={52}
+                  className="h-[52px] w-[52px] max-w-full rounded-lg bg-white object-contain shrink-0"
                 />
               ) : (
-                <div className="w-10 h-10 bg-[#FBA026] rounded-lg flex items-center justify-center shrink-0">
+                <div className="h-[52px] w-[52px] bg-[#FBA026] rounded-lg flex items-center justify-center shrink-0">
                   <span className="text-white font-bold text-xl">H</span>
                 </div>
               )}
@@ -258,7 +260,7 @@ export function Footer({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} Hongchao. All rights reserved.
+              © {new Date().getFullYear()} {footerCompanyName}. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <Link href={withLocale("/privacy-policy", locale)} className="text-sm text-slate-500 hover:text-[#FBA026] transition-colors">
